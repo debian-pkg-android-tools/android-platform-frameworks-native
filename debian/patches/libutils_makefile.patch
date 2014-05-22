@@ -1,0 +1,98 @@
+Index: android-platform-frameworks-native/libs/utils/Makefile
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ android-platform-frameworks-native/libs/utils/Makefile	2014-05-21 23:36:54.000000000 -0400
+@@ -0,0 +1,75 @@
++#!/bin/make
++
++CXX = g++
++
++SOURCES:= \
++	BasicHashtable.cpp \
++	BlobCache.cpp \
++	BufferedTextOutput.cpp \
++	Debug.cpp \
++	FileMap.cpp \
++	Flattenable.cpp \
++	LinearTransform.cpp \
++	Looper.cpp \
++	PropertyMap.cpp \
++	RefBase.cpp \
++	SharedBuffer.cpp \
++	Static.cpp \
++	StopWatch.cpp \
++	String8.cpp \
++	String16.cpp \
++	StringArray.cpp \
++	SystemClock.cpp \
++	TextOutput.cpp \
++	Threads.cpp \
++	Timers.cpp \
++	Tokenizer.cpp \
++	Unicode.cpp \
++	VectorImpl.cpp \
++	WorkQueue.cpp \
++	ZipFileCRO.cpp \
++	ZipFileRO.cpp \
++	ZipUtils.cpp \
++	misc.cpp
++
++OBJECTS = $(SOURCES:.cpp=.o)
++
++# Debian has gettid, but this build doesn't find it
++#         -DHAVE_GETTID \
++
++ALL_CXXFLAGS = -O2 -fPIC -I../../include -I/usr/include/android \
++         -DHAVE_ENDIAN_H \
++         -DHAVE_GNU_QSORT_R \
++         -DHAVE_MADVICE \
++         -DHAVE_OFF64_T \
++         -DHAVE_POSIX_CLOCKS \
++         -DHAVE_POSIX_FILEMAP \
++         -DHAVE_PRCTL \
++         -DHAVE_PREAD \
++         -DHAVE_PTHREADS \
++         -DHAVE_SYMLINKS \
++         -DHAVE_SYS_UIO_H \
++         -DOS_PATH_SEPARATOR="'/'"
++ALL_LDFLAGS = -shared -rdynamic
++ALL_LIBS = -lrt -ldl -lz -lpthread
++
++CXXFLAGS := $(ALL_CXXFLAGS) $(CXXFLAGS)
++LDFLAGS := $(ALL_LDFLAGS) $(LDFLAGS)
++LIBS := $(ALL_LIBS) $(LIBS)
++
++LIBNAME = libutils
++
++all: $(OBJECTS) $(LIBNAME).pc
++	$(CXX) $(CXXFLAGS) $(LDFLAGS) \
++		-Wl,-soname,$(LIBNAME).so.0 -o $(LIBNAME).so.0 $(OBJECTS) $(LIBS)
++	ln -sf $(LIBNAME).so.0 $(LIBNAME).so
++	ar rs $(LIBNAME).a $(OBJECTS)
++
++$(LIBNAME).pc: $(LIBNAME).pc.in
++	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@TRIPLET@/$(TRIPLET)/g' $(LIBNAME).pc.in > $(LIBNAME).pc
++
++clean:
++	rm -f $(OBJECTS)
++	rm -f $(LIBNAME).so $(LIBNAME).so.0 $(LIBNAME).a
++	rm -f $(LIBNAME).pc
++
+Index: android-platform-frameworks-native/libs/utils/libutils.pc.in
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ android-platform-frameworks-native/libs/utils/libutils.pc.in	2014-05-21 23:36:54.000000000 -0400
+@@ -0,0 +1,13 @@
++prefix=/usr
++exec_prefix=
++libdir=${prefix}/lib/@TRIPLET@
++includedir=${prefix}/include/android
++
++Name: libutils
++Description: Android native utils library
++Version: @VERSION@
++
++Requires: androidlog = @VERSION@, bsd
++Libs: -L${libdir} -lutils
++Libs.private: -lpthread
++Cflags: -I${includedir}
