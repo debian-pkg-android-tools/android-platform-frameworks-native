@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+export VERSION=$(shell dpkg-parsechangelog --count 1 | grep ^Version: | sed -e 's/Version: //g' -e 's/[-][0-9]*//g')
+export TRIPLET=$(DEB_HOST_MULTIARCH)
+
+%:
+	dh $@
+

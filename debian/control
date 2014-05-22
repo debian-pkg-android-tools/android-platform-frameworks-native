@@ -1,0 +1,33 @@
+Source: android-platform-frameworks-native
+Section: devel
+Priority: extra
+Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.org>
+Uploaders: Hans-Christoph Steiner <hans@eds.org>
+Build-Depends: dh-exec (>= 0.2),
+               debhelper (>=9),
+               androidsystem-dev,
+               libandroidlog-dev,
+               zlib1g-dev
+Standards-Version: 3.9.5
+Homepage: https://android.googlesource.com/platform/frameworks/native
+Vcs-Git: https://alioth.debian.org/anonscm/git/android-tools/android-platform-frameworks-native.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=android-tools/android-platform-frameworks-native.git
+
+Package: libutils0
+Section: libs
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Android utility library
+ Library providing utility functions to Android related tools.
+
+Package: libutils-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}, libc-dev, libutils0 (= ${binary:Version})
+Multi-Arch: same
+Description: Android utility library - Development files
+ Library providing utility functions to Android related tools.
+ .
+ This package contains the development files.
