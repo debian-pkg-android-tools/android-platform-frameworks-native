@@ -56,7 +56,7 @@ Index: android-platform-frameworks-native/libs/utils/Makefile
 +         -DHAVE_SYS_UIO_H \
 +         -DOS_PATH_SEPARATOR="'/'"
 +ALL_LDFLAGS = -shared -rdynamic
-+ALL_LIBS = -lrt -ldl -lz -lpthread
++ALL_LIBS = -lrt -ldl -lz -lpthread -landroidcutils -landroidlog
 +
 +CXXFLAGS := $(ALL_CXXFLAGS) $(CXXFLAGS)
 +LDFLAGS := $(ALL_LDFLAGS) $(LDFLAGS)
