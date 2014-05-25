@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/libs/utils/Makefile
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,63 @@
 +#!/bin/make
 +
 +CXX = g++
@@ -41,18 +41,7 @@
 +#         -DHAVE_GETTID \
 +
 +ALL_CXXFLAGS = -O2 -fPIC -I../../include -I/usr/include/android \
-+         -DHAVE_ENDIAN_H \
-+         -DHAVE_GNU_QSORT_R \
-+         -DHAVE_MADVICE \
-+         -DHAVE_OFF64_T \
-+         -DHAVE_POSIX_CLOCKS \
-+         -DHAVE_POSIX_FILEMAP \
-+         -DHAVE_PRCTL \
-+         -DHAVE_PREAD \
-+         -DHAVE_PTHREADS \
-+         -DHAVE_SYMLINKS \
-+         -DHAVE_SYS_UIO_H \
-+         -DOS_PATH_SEPARATOR="'/'"
++	-include /usr/include/android/arch/linux-x86/AndroidConfig.h
 +ALL_LDFLAGS = -fPIC -shared -rdynamic
 +ALL_LIBS = -lrt -ldl -lz -lpthread -landroidcutils -landroidlog
 +
