@@ -6,6 +6,7 @@ Uploaders: Hans-Christoph Steiner <hans@eds.org>
 Build-Depends: dh-exec (>= 0.2),
                debhelper (>=9),
                androidsystem-dev,
+               libandroidcutils-dev,
                libandroidlog-dev,
                zlib1g-dev
 Standards-Version: 3.9.5
@@ -24,7 +25,10 @@ Description: Android utility library
 Package: libutils-dev
 Section: libdevel
 Architecture: amd64 i386
-Depends: ${misc:Depends}, libc-dev, libutils0 (= ${binary:Version})
+Depends: libutils0 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends},
+         libandroidcutils-dev
 Description: Android utility library - Development files
  Library providing utility functions to Android related tools. This is needed
  purely to get various Android utilities working.
