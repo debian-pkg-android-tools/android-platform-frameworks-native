@@ -43,7 +43,7 @@
 +ALL_CXXFLAGS = -O2 -fPIC -I../../include -I/usr/include/android \
 +	-include /usr/include/android/arch/linux-x86/AndroidConfig.h
 +ALL_LDFLAGS = -fPIC -shared -rdynamic
-+ALL_LIBS = -lrt -ldl -lz -lpthread -landroidcutils -landroidlog
++ALL_LIBS = -lrt -ldl -lz -lpthread -L/usr/lib/android -lcutils -llog
 +
 +CXXFLAGS := $(ALL_CXXFLAGS) $(CXXFLAGS)
 +LDFLAGS := $(ALL_LDFLAGS) $(LDFLAGS)

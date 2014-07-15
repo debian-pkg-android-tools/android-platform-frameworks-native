@@ -6,3 +6,5 @@ export TRIPLET=$(DEB_HOST_MULTIARCH)
 %:
 	dh $@
 
+override_dh_shlibdeps:
+	dh_shlibdeps -l/usr/lib/android
