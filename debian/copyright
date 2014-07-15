@@ -4,8 +4,31 @@ Upstream-Contact: https://source.android.com/compatibility/contact-us.html
 Source: https://android.googlesource.com/platform/frameworks/native
 
 Files: *
-Copyright: 2005-2012, The Android Open Source Project
+Copyright: 2005-2012, The Android Open Source Project,
+           2008-2011, Google Inc.
+           2004-2010, NXP Software
+           2003-2010, VisualOn
+           2007-2009, The Khronos Group Inc.
+           1998-2009, PacketVideo
+           2002-2008, John Cowan
+           2007, Nuance Communications
+           2004-2005, Jetro Lauha
+           2003, David Blythe
 License: Apache 2.0
+
+Files: opengl/include/EGL/*
+Copyright: 2007-2009, The Khronos Group Inc.
+License: MIT/X11 (BSD like)
+
+Files: opengl/tests/angeles/
+Copyright: 2004-2005, Jetro Lauha
+           2003, David Blythe
+License: BSD
+
+Files: include/media/openmax/*
+Copyright: 1998-2009, PacketVideo
+           2008, The Khronos Group Inc.
+License: MIT/X11 (BSD like)
 
 Files: debian/*
 Copyright: public-domain
@@ -24,6 +47,34 @@ License: Apache 2.0
  .
  On Debian systems, the full text of the Apache License, Version 2.0
  can be found in the file `/usr/share/common-licenses/Apache-2.0'.
+
+License: BSD
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+ * Neither the name of the software product's copyright owner nor
+   the names of its contributors may be used to endorse or promote
+   products derived from this software without specific prior written
+   permission.
+
+License: MIT/X11 (BSD like)
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject
+ to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
 
 License: public-domain
  To the best of our knowledge, with the exceptions noted below or
