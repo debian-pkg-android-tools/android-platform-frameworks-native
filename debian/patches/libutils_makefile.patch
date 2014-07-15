@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/libs/utils/Makefile
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,62 @@
 +#!/bin/make
 +
 +CXX = g++
@@ -42,7 +42,7 @@
 +
 +ALL_CXXFLAGS = -O2 -fPIC -I../../include -I/usr/include/android \
 +	-include /usr/include/android/arch/linux-x86/AndroidConfig.h
-+ALL_LDFLAGS = -fPIC -shared -rdynamic
++ALL_LDFLAGS = -fPIC -shared -rdynamic -Wl,-rpath=/usr/lib/android
 +ALL_LIBS = -lrt -ldl -lz -lpthread -L/usr/lib/android -lcutils -llog
 +
 +CXXFLAGS := $(ALL_CXXFLAGS) $(CXXFLAGS)
@@ -52,8 +52,7 @@
 +LIBNAME = libutils
 +
 +all: $(OBJECTS) $(LIBNAME).pc
-+	$(CXX) $(LDFLAGS) -Wl,-soname,$(LIBNAME).so.0 -o $(LIBNAME).so.0 $(OBJECTS) $(LIBS)
-+	ln -sf $(LIBNAME).so.0 $(LIBNAME).so
++	$(CXX) $(LDFLAGS) -Wl,-soname,$(LIBNAME).so -o $(LIBNAME).so $(OBJECTS) $(LIBS)
 +	ar rs $(LIBNAME).a $(OBJECTS)
 +
 +$(LIBNAME).pc: $(LIBNAME).pc.in
@@ -61,7 +60,7 @@
 +
 +clean:
 +	rm -f $(OBJECTS)
-+	rm -f $(LIBNAME).so $(LIBNAME).so.0 $(LIBNAME).a
++	rm -f $(LIBNAME).so $(LIBNAME).a
 +	rm -f $(LIBNAME).pc
 +
 --- /dev/null

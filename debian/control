@@ -14,7 +14,7 @@ Homepage: https://android.googlesource.com/platform/frameworks/native
 Vcs-Git: https://alioth.debian.org/anonscm/git/android-tools/android-platform-frameworks-native.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=android-tools/android-platform-frameworks-native.git
 
-Package: libutils0
+Package: android-libutils
 Section: libs
 Architecture: amd64 i386
 Depends: ${misc:Depends}, ${shlibs:Depends}
@@ -22,10 +22,10 @@ Description: Android utility library
  Library providing utility functions to Android related tools. This is needed
  purely to get various Android utilities working.
 
-Package: libutils-dev
+Package: android-libutils-dev
 Section: libdevel
 Architecture: amd64 i386
-Depends: libutils0 (= ${binary:Version}),
+Depends: android-libutils (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends},
          android-libcutils-dev

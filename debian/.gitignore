@@ -3,6 +3,6 @@ files
 *.debhelper
 *.substvars
 *.log
-libutils-dev/
-libutils0/
+android-libutils-dev/
+android-libutils/
 tmp/
