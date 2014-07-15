@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/libs/utils/Makefile
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,58 @@
 +#!/bin/make
 +
 +CXX = g++
@@ -51,31 +51,11 @@
 +
 +LIBNAME = libutils
 +
-+all: $(OBJECTS) $(LIBNAME).pc
++all: $(OBJECTS)
 +	$(CXX) $(LDFLAGS) -Wl,-soname,$(LIBNAME).so -o $(LIBNAME).so $(OBJECTS) $(LIBS)
 +	ar rs $(LIBNAME).a $(OBJECTS)
-+
-+$(LIBNAME).pc: $(LIBNAME).pc.in
-+	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@TRIPLET@/$(TRIPLET)/g' $(LIBNAME).pc.in > $(LIBNAME).pc
 +
 +clean:
 +	rm -f $(OBJECTS)
 +	rm -f $(LIBNAME).so $(LIBNAME).a
-+	rm -f $(LIBNAME).pc
 +
---- /dev/null
-+++ b/libs/utils/libutils.pc.in
-@@ -0,0 +1,13 @@
-+prefix=/usr
-+exec_prefix=
-+libdir=${prefix}/lib/@TRIPLET@
-+includedir=${prefix}/include/android
-+
-+Name: libutils
-+Description: Android native utils library
-+Version: @VERSION@
-+
-+Requires: androidlog = @VERSION@, bsd
-+Libs: -L${libdir} -lutils
-+Libs.private: -lpthread
-+Cflags: -I${includedir}
