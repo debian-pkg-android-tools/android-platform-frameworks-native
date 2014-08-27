@@ -2,7 +2,8 @@ Source: android-platform-frameworks-native
 Section: devel
 Priority: extra
 Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.org>
-Uploaders: Hans-Christoph Steiner <hans@eds.org>
+Uploaders: Hans-Christoph Steiner <hans@eds.org>,
+ Laszlo Boszormenyi (GCS) <gcs@debian.org>
 Build-Depends: dh-exec (>= 0.2),
                debhelper (>=9),
                android-system-dev,
