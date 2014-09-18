@@ -14,11 +14,11 @@ Copyright: 2005-2012, The Android Open Source Project,
            2007, Nuance Communications
            2004-2005, Jetro Lauha
            2003, David Blythe
-License: Apache 2.0
+License: Apache-2.0
 
 Files: opengl/include/EGL/*
 Copyright: 2007-2009, The Khronos Group Inc.
-License: MIT/X11 (BSD like)
+License: MIT/X11
 
 Files: opengl/tests/angeles/
 Copyright: 2004-2005, Jetro Lauha
@@ -28,14 +28,14 @@ License: BSD or LGPL-2.1+
 Files: include/media/openmax/*
 Copyright: 1998-2009, PacketVideo
            2008, The Khronos Group Inc.
-License: MIT/X11 (BSD like)
+License: MIT/X11
 
 Files: debian/*
 Copyright: public-domain
 License: public-domain
 
 
-License: Apache 2.0
+License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  .
@@ -79,7 +79,7 @@ License: BSD
    products derived from this software without specific prior written
    permission.
 
-License: MIT/X11 (BSD like)
+License: MIT/X11
  Permission is hereby granted, free of charge, to any person obtaining
  a copy of this software and associated documentation files (the
  "Software"), to deal in the Software without restriction, including
