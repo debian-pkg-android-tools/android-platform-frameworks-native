@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/libs/utils/Makefile
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,60 @@
 +#!/bin/make
 +
 +CXX = g++
@@ -50,12 +50,14 @@
 +LIBS := $(ALL_LIBS) $(LIBS)
 +
 +LIBNAME = libutils
++SONAME = $(LIBNAME).so.0
++SOFILENAME = $(SONAME).21.0
 +
 +all: $(OBJECTS)
-+	$(CXX) $(LDFLAGS) -Wl,-soname,$(LIBNAME).so -o $(LIBNAME).so $(OBJECTS) $(LIBS)
++	$(CXX) $(LDFLAGS) -Wl,-soname,$(SONAME) -o $(SOFILENAME) $(OBJECTS) $(LIBS)
 +	ar rs $(LIBNAME).a $(OBJECTS)
 +
 +clean:
 +	rm -f $(OBJECTS)
-+	rm -f $(LIBNAME).so $(LIBNAME).a
++	rm -f $(LIBNAME).so* $(LIBNAME).a
 +
