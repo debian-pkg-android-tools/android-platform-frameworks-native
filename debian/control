@@ -13,7 +13,7 @@ Build-Depends: dh-exec (>= 0.2),
 Standards-Version: 3.9.6
 Homepage: https://android.googlesource.com/platform/frameworks/native
 Vcs-Git: https://alioth.debian.org/anonscm/git/android-tools/android-platform-frameworks-native.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=android-tools/android-platform-frameworks-native.git
+Vcs-Browser: http://anonscm.debian.org/cgit/android-tools/android-platform-frameworks-native.git
 
 Package: android-libutils
 Section: libs
