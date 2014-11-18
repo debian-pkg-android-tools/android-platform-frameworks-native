@@ -1,3 +1,9 @@
+android-platform-frameworks-native (21-2) unstable; urgency=low
+
+  * add versions to shlibs so dh can do dep detection
+
+ -- Hans-Christoph Steiner <hans@eds.org>  Tue, 18 Nov 2014 14:22:13 +0100
+
 android-platform-frameworks-native (21-1) unstable; urgency=low
 
   * Initial release (Closes: #749100)
