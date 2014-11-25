@@ -29,6 +29,8 @@ Architecture: amd64 i386
 Depends: android-libutils (= ${binary:Version}),
          ${misc:Depends},
          android-libcutils-dev
+Breaks: android-libutils (<< 21-2~)
+Replaces: android-libutils (<< 21-2~)
 Description: Android utility library - Development files
  Library providing utility functions to Android related tools. This is needed
  purely to get various Android utilities working.
