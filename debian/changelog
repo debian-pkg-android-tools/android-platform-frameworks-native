@@ -1,3 +1,9 @@
+android-platform-frameworks-native (21-3) unstable; urgency=low
+
+  * add Breaks: and Replaces: for proper upgrading (Closes: #771062)
+
+ -- Hans-Christoph Steiner <hans@eds.org>  Wed, 26 Nov 2014 14:55:28 +0100
+
 android-platform-frameworks-native (21-2) unstable; urgency=low
 
   * add versions to shlibs so dh can do dep detection
