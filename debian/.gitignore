@@ -1,8 +1,0 @@
-*~
-files
-*.debhelper
-*.substvars
-*.log
-android-libutils-dev/
-android-libutils/
-tmp/

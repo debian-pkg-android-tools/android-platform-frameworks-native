@@ -1,3 +1,0 @@
-include/android usr/include/android/
-include/utils usr/include/android/
-libs/utils/libutils.a usr/lib/android/

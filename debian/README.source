@@ -43,10 +43,8 @@ package source repo is configured following git-buildpackage's manual, under
 If you want to update the source git repo for this package to a newer release,
 then fetch the new commits from the upstream git repo:
 
- git remote add upstream https://android.googlesource.com/platform/frameworks/native
- git fetch upstream
+ git remote add google https://android.googlesource.com/platform/frameworks/native
+ git fetch google
 
-debian/gbp.conf is set up to use upstream's release branches and build
-tarballs from there.
-
- -- Hans-Christoph Steiner <hans@eds.org>, Thu, 18 Sep 2014 16:37:50 -0400
+ -- Hans-Christoph Steiner <hans@eds.org>  Thu, 18 Sep 2014 16:37:50 -0400
+ -- Kai-Chung Yan <seamlikok@gmail.com>  Mon, 03 Aug 2015 10:50:31 +0800

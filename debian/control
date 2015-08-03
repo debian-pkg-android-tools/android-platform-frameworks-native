@@ -3,36 +3,17 @@ Section: devel
 Priority: extra
 Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.org>
 Uploaders: Hans-Christoph Steiner <hans@eds.org>,
- Laszlo Boszormenyi (GCS) <gcs@debian.org>
-Build-Depends: dh-exec (>= 0.2),
-               debhelper (>=9),
-               android-system-dev,
-               android-libcutils-dev,
-               android-liblog-dev,
-               zlib1g-dev
+           Laszlo Boszormenyi (GCS) <gcs@debian.org>,
+           Kai-Chung Yan <seamlikok@gmail.com>
+Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: https://android.googlesource.com/platform/frameworks/native
-Vcs-Git: https://alioth.debian.org/anonscm/git/android-tools/android-platform-frameworks-native.git
+Vcs-Git: http://anonscm.debian.org/android-tools/android-platform-frameworks-native.git
 Vcs-Browser: http://anonscm.debian.org/cgit/android-tools/android-platform-frameworks-native.git
 
-Package: android-libutils
-Section: libs
-Architecture: amd64 i386
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: Android utility library
- Library providing utility functions to Android related tools. This is needed
- purely to get various Android utilities working.
-
-Package: android-libutils-dev
+Package: android-frameworks-native-dev
 Section: libdevel
-Architecture: amd64 i386
-Depends: android-libutils (= ${binary:Version}),
-         ${misc:Depends},
-         android-libcutils-dev
-Breaks: android-libutils (<< 21-2~)
-Replaces: android-libutils (<< 21-2~)
-Description: Android utility library - Development files
- Library providing utility functions to Android related tools. This is needed
- purely to get various Android utilities working.
- .
- This package contains the development files.
+Architecture: all
+Depends: ${misc:Depends}
+Description: Headers of android-platform-frameworks-native
+ This package contains headers in include/android in platform/frameworks/native.
