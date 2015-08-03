@@ -1,4 +1,4 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0
 Upstream-Name: Android native frameworks
 Upstream-Contact: https://source.android.com/compatibility/contact-us.html
 Source: https://android.googlesource.com/platform/frameworks/native
@@ -23,7 +23,7 @@ License: MIT/X11
 Files: opengl/tests/angeles/
 Copyright: 2004-2005, Jetro Lauha
            2003, David Blythe
-License: BSD or LGPL-2.1+
+License: BSD-3-clause or LGPL-2.1+
 
 Files: include/media/openmax/*
 Copyright: 1998-2009, PacketVideo
@@ -31,7 +31,9 @@ Copyright: 1998-2009, PacketVideo
 License: MIT/X11
 
 Files: debian/*
-Copyright: android-tools team
+Copyright: 2015 Hans-Christoph Steiner <hans@eds.org>,
+           2015 Laszlo Boszormenyi (GCS) <gcs@debian.org>,
+           2015 Kai-Chung Yan <seamlikok@gmail.com>
 License: CC0
 
 
@@ -63,7 +65,7 @@ License: LGPL-2.1+
  License version 2.1 can be found in the file
  `/usr/share/common-licenses/LGPL-2.1'.
 
-License: BSD
+License: BSD-3-clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
