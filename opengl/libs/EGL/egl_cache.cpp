@@ -14,9 +14,10 @@
  ** limitations under the License.
  */
 
+#include "../egl_impl.h"
+
 #include "egl_cache.h"
 #include "egl_display.h"
-#include "egl_impl.h"
 #include "egldefs.h"
 
 #include <fcntl.h>
@@ -29,12 +30,16 @@
 #define MAX_EGL_CACHE_ENTRY_SIZE (16 * 1024);
 #endif
 
+#ifndef MAX_EGL_CACHE_KEY_SIZE
+#define MAX_EGL_CACHE_KEY_SIZE (1024);
+#endif
+
 #ifndef MAX_EGL_CACHE_SIZE
 #define MAX_EGL_CACHE_SIZE (64 * 1024);
 #endif
 
 // Cache size limits.
-static const size_t maxKeySize = 1024;
+static const size_t maxKeySize = MAX_EGL_CACHE_KEY_SIZE;
 static const size_t maxValueSize = MAX_EGL_CACHE_ENTRY_SIZE;
 static const size_t maxTotalSize = MAX_EGL_CACHE_SIZE;
 
@@ -121,11 +126,8 @@ void egl_cache_t::initialize(egl_display_t *display) {
 
 void egl_cache_t::terminate() {
     Mutex::Autolock lock(mMutex);
-    if (mBlobCache != NULL) {
-        saveBlobCacheLocked();
-        mBlobCache = NULL;
-    }
-    mInitialized = false;
+    saveBlobCacheLocked();
+    mBlobCache = NULL;
 }
 
 void egl_cache_t::setBlob(const void* key, EGLsizeiANDROID keySize,
@@ -213,7 +215,7 @@ static uint32_t crc32c(const uint8_t* buf, size_t len) {
 }
 
 void egl_cache_t::saveBlobCacheLocked() {
-    if (mFilename.length() > 0) {
+    if (mFilename.length() > 0 && mBlobCache != NULL) {
         size_t cacheSize = mBlobCache->getFlattenedSize();
         size_t headerSize = cacheFileHeaderSize;
         const char* fname = mFilename.string();
@@ -251,8 +253,7 @@ void egl_cache_t::saveBlobCacheLocked() {
             return;
         }
 
-        status_t err = mBlobCache->flatten(buf + headerSize, cacheSize, NULL,
-                0);
+        status_t err = mBlobCache->flatten(buf + headerSize, cacheSize);
         if (err != OK) {
             ALOGE("error writing cache contents: %s (%d)", strerror(-err),
                     -err);
@@ -333,8 +334,7 @@ void egl_cache_t::loadBlobCacheLocked() {
             return;
         }
 
-        status_t err = mBlobCache->unflatten(buf + headerSize, cacheSize, NULL,
-                0);
+        status_t err = mBlobCache->unflatten(buf + headerSize, cacheSize);
         if (err != OK) {
             ALOGE("error reading cache contents: %s (%d)", strerror(-err),
                     -err);

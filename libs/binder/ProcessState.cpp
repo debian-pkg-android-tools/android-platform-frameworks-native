@@ -48,11 +48,6 @@
 
 namespace android {
  
-// Global variables
-int                 mArgC;
-const char* const*  mArgV;
-int                 mArgLen;
-
 class PoolThread : public Thread
 {
 public:
@@ -86,7 +81,7 @@ void ProcessState::setContextObject(const sp<IBinder>& object)
     setContextObject(object, String16("default"));
 }
 
-sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& caller)
+sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& /*caller*/)
 {
     return getStrongProxyForHandle(0);
 }
@@ -194,6 +189,33 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
         // in getWeakProxyForHandle() for more info about this.
         IBinder* b = e->binder;
         if (b == NULL || !e->refs->attemptIncWeak(this)) {
+            if (handle == 0) {
+                // Special case for context manager...
+                // The context manager is the only object for which we create
+                // a BpBinder proxy without already holding a reference.
+                // Perform a dummy transaction to ensure the context manager
+                // is registered before we create the first local reference
+                // to it (which will occur when creating the BpBinder).
+                // If a local reference is created for the BpBinder when the
+                // context manager is not present, the driver will fail to
+                // provide a reference to the context manager, but the
+                // driver API does not return status.
+                //
+                // Note that this is not race-free if the context manager
+                // dies while this code runs.
+                //
+                // TODO: add a driver API to wait for context manager, or
+                // stop special casing handle 0 for context manager and add
+                // a driver API to get a handle to the context manager with
+                // proper reference counting.
+
+                Parcel data;
+                status_t status = IPCThreadState::self()->transact(
+                        0, IBinder::PING_TRANSACTION, data, NULL, 0);
+                if (status == DEAD_OBJECT)
+                   return NULL;
+            }
+
             b = new BpBinder(handle); 
             e->binder = b;
             if (b) e->refs = b->getWeakRefs();
@@ -253,45 +275,20 @@ void ProcessState::expungeHandle(int32_t handle, IBinder* binder)
     if (e && e->binder == binder) e->binder = NULL;
 }
 
-void ProcessState::setArgs(int argc, const char* const argv[])
-{
-    mArgC = argc;
-    mArgV = (const char **)argv;
-
-    mArgLen = 0;
-    for (int i=0; i<argc; i++) {
-        mArgLen += strlen(argv[i]) + 1;
-    }
-    mArgLen--;
-}
-
-int ProcessState::getArgC() const
-{
-    return mArgC;
-}
-
-const char* const* ProcessState::getArgV() const
-{
-    return mArgV;
-}
-
-void ProcessState::setArgV0(const char* txt)
-{
-    if (mArgV != NULL) {
-        strncpy((char*)mArgV[0], txt, mArgLen);
-        set_process_name(txt);
-    }
+String8 ProcessState::makeBinderThreadName() {
+    int32_t s = android_atomic_add(1, &mThreadPoolSeq);
+    String8 name;
+    name.appendFormat("Binder_%X", s);
+    return name;
 }
 
 void ProcessState::spawnPooledThread(bool isMain)
 {
     if (mThreadPoolStarted) {
-        int32_t s = android_atomic_add(1, &mThreadPoolSeq);
-        char buf[16];
-        snprintf(buf, sizeof(buf), "Binder_%X", s);
-        ALOGV("Spawning new pooled thread, name=%s\n", buf);
+        String8 name = makeBinderThreadName();
+        ALOGV("Spawning new pooled thread, name=%s\n", name.string());
         sp<Thread> t = new PoolThread(isMain);
-        t->run(buf);
+        t->run(name.string());
     }
 }
 
@@ -304,12 +301,16 @@ status_t ProcessState::setThreadPoolMaxThreadCount(size_t maxThreads) {
     return result;
 }
 
+void ProcessState::giveThreadPoolName() {
+    androidSetThreadName( makeBinderThreadName().string() );
+}
+
 static int open_driver()
 {
     int fd = open("/dev/binder", O_RDWR);
     if (fd >= 0) {
         fcntl(fd, F_SETFD, FD_CLOEXEC);
-        int vers;
+        int vers = 0;
         status_t result = ioctl(fd, BINDER_VERSION, &vers);
         if (result == -1) {
             ALOGE("Binder ioctl to obtain version failed: %s", strerror(errno));

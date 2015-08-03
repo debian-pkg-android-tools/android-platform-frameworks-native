@@ -29,7 +29,7 @@
 #include <ui/Point.h>
 #include <ui/Rect.h>
 
-#include <gui/ISurface.h>
+#include <gui/IGraphicBufferProducer.h>
 #include <gui/ISurfaceComposerClient.h>
 #include <private/gui/LayerState.h>
 
@@ -39,44 +39,57 @@ namespace android {
 
 enum {
     CREATE_SURFACE = IBinder::FIRST_CALL_TRANSACTION,
-    DESTROY_SURFACE
+    DESTROY_SURFACE,
+    CLEAR_LAYER_FRAME_STATS,
+    GET_LAYER_FRAME_STATS
 };
 
 class BpSurfaceComposerClient : public BpInterface<ISurfaceComposerClient>
 {
 public:
     BpSurfaceComposerClient(const sp<IBinder>& impl)
-        : BpInterface<ISurfaceComposerClient>(impl)
-    {
+        : BpInterface<ISurfaceComposerClient>(impl) {
     }
 
-    virtual sp<ISurface> createSurface( surface_data_t* params,
-                                        const String8& name,
-                                        DisplayID display,
-                                        uint32_t w,
-                                        uint32_t h,
-                                        PixelFormat format,
-                                        uint32_t flags)
-    {
+    virtual status_t createSurface(const String8& name, uint32_t w,
+            uint32_t h, PixelFormat format, uint32_t flags,
+            sp<IBinder>* handle,
+            sp<IGraphicBufferProducer>* gbp) {
         Parcel data, reply;
         data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
         data.writeString8(name);
-        data.writeInt32(display);
         data.writeInt32(w);
         data.writeInt32(h);
         data.writeInt32(format);
         data.writeInt32(flags);
         remote()->transact(CREATE_SURFACE, data, &reply);
-        params->readFromParcel(reply);
-        return interface_cast<ISurface>(reply.readStrongBinder());
+        *handle = reply.readStrongBinder();
+        *gbp = interface_cast<IGraphicBufferProducer>(reply.readStrongBinder());
+        return reply.readInt32();
     }
 
-    virtual status_t destroySurface(SurfaceID sid)
-    {
+    virtual status_t destroySurface(const sp<IBinder>& handle) {
         Parcel data, reply;
         data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
-        data.writeInt32(sid);
+        data.writeStrongBinder(handle);
         remote()->transact(DESTROY_SURFACE, data, &reply);
+        return reply.readInt32();
+    }
+
+    virtual status_t clearLayerFrameStats(const sp<IBinder>& handle) const {
+        Parcel data, reply;
+        data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
+        data.writeStrongBinder(handle);
+        remote()->transact(CLEAR_LAYER_FRAME_STATS, data, &reply);
+        return reply.readInt32();
+    }
+
+    virtual status_t getLayerFrameStats(const sp<IBinder>& handle, FrameStats* outStats) const {
+        Parcel data, reply;
+        data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
+        data.writeStrongBinder(handle);
+        remote()->transact(GET_LAYER_FRAME_STATS, data, &reply);
+        reply.read(*outStats);
         return reply.readInt32();
     }
 };
@@ -91,43 +104,44 @@ status_t BnSurfaceComposerClient::onTransact(
      switch(code) {
         case CREATE_SURFACE: {
             CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
-            surface_data_t params;
             String8 name = data.readString8();
-            DisplayID display = data.readInt32();
             uint32_t w = data.readInt32();
             uint32_t h = data.readInt32();
             PixelFormat format = data.readInt32();
             uint32_t flags = data.readInt32();
-            sp<ISurface> s = createSurface(&params, name, display, w, h,
-                    format, flags);
-            params.writeToParcel(reply);
-            reply->writeStrongBinder(s->asBinder());
+            sp<IBinder> handle;
+            sp<IGraphicBufferProducer> gbp;
+            status_t result = createSurface(name, w, h, format, flags,
+                    &handle, &gbp);
+            reply->writeStrongBinder(handle);
+            reply->writeStrongBinder(gbp->asBinder());
+            reply->writeInt32(result);
             return NO_ERROR;
         } break;
         case DESTROY_SURFACE: {
             CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
-            reply->writeInt32( destroySurface( data.readInt32() ) );
+            reply->writeInt32(destroySurface( data.readStrongBinder() ) );
+            return NO_ERROR;
+        } break;
+       case CLEAR_LAYER_FRAME_STATS: {
+            CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
+            sp<IBinder> handle = data.readStrongBinder();
+            status_t result = clearLayerFrameStats(handle);
+            reply->writeInt32(result);
+            return NO_ERROR;
+        } break;
+        case GET_LAYER_FRAME_STATS: {
+            CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
+            sp<IBinder> handle = data.readStrongBinder();
+            FrameStats stats;
+            status_t result = getLayerFrameStats(handle, &stats);
+            reply->write(stats);
+            reply->writeInt32(result);
             return NO_ERROR;
         } break;
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-}
-
-// ----------------------------------------------------------------------
-
-status_t ISurfaceComposerClient::surface_data_t::readFromParcel(const Parcel& parcel)
-{
-    token    = parcel.readInt32();
-    identity = parcel.readInt32();
-    return NO_ERROR;
-}
-
-status_t ISurfaceComposerClient::surface_data_t::writeToParcel(Parcel* parcel) const
-{
-    parcel->writeInt32(token);
-    parcel->writeInt32(identity);
-    return NO_ERROR;
 }
 
 }; // namespace android

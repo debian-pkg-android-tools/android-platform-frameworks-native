@@ -40,23 +40,30 @@ class IDisplayEventConnection;
 class DisplayEventReceiver {
 public:
     enum {
-        DISPLAY_EVENT_VSYNC = 'vsyn'
+        DISPLAY_EVENT_VSYNC = 'vsyn',
+        DISPLAY_EVENT_HOTPLUG = 'plug'
     };
 
     struct Event {
 
         struct Header {
             uint32_t type;
-            nsecs_t timestamp;
+            uint32_t id;
+            nsecs_t timestamp __attribute__((aligned(8)));
         };
 
         struct VSync {
             uint32_t count;
         };
 
+        struct Hotplug {
+            bool connected;
+        };
+
         Header header;
         union {
             VSync vsync;
+            Hotplug hotplug;
         };
     };
 

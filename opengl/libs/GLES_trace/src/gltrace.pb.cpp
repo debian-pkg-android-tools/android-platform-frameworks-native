@@ -419,6 +419,132 @@ bool GLMessage_Function_IsValid(int value) {
     case 373:
     case 374:
     case 375:
+    case 376:
+    case 377:
+    case 378:
+    case 379:
+    case 380:
+    case 381:
+    case 382:
+    case 383:
+    case 384:
+    case 385:
+    case 386:
+    case 387:
+    case 388:
+    case 389:
+    case 390:
+    case 391:
+    case 392:
+    case 393:
+    case 394:
+    case 395:
+    case 396:
+    case 397:
+    case 398:
+    case 399:
+    case 400:
+    case 401:
+    case 402:
+    case 403:
+    case 404:
+    case 405:
+    case 406:
+    case 407:
+    case 408:
+    case 409:
+    case 410:
+    case 411:
+    case 412:
+    case 413:
+    case 414:
+    case 415:
+    case 416:
+    case 417:
+    case 418:
+    case 419:
+    case 420:
+    case 421:
+    case 422:
+    case 423:
+    case 424:
+    case 425:
+    case 426:
+    case 427:
+    case 428:
+    case 429:
+    case 430:
+    case 431:
+    case 432:
+    case 433:
+    case 434:
+    case 435:
+    case 436:
+    case 437:
+    case 438:
+    case 439:
+    case 440:
+    case 441:
+    case 442:
+    case 443:
+    case 444:
+    case 445:
+    case 446:
+    case 447:
+    case 448:
+    case 449:
+    case 450:
+    case 451:
+    case 452:
+    case 453:
+    case 454:
+    case 455:
+    case 456:
+    case 457:
+    case 458:
+    case 459:
+    case 460:
+    case 461:
+    case 462:
+    case 463:
+    case 464:
+    case 465:
+    case 466:
+    case 467:
+    case 468:
+    case 469:
+    case 470:
+    case 471:
+    case 472:
+    case 473:
+    case 474:
+    case 475:
+    case 476:
+    case 477:
+    case 478:
+    case 479:
+    case 480:
+    case 481:
+    case 482:
+    case 483:
+    case 484:
+    case 485:
+    case 486:
+    case 487:
+    case 488:
+    case 489:
+    case 490:
+    case 491:
+    case 492:
+    case 493:
+    case 494:
+    case 495:
+    case 496:
+    case 497:
+    case 498:
+    case 499:
+    case 500:
+    case 501:
     case 502:
     case 503:
     case 504:
@@ -479,6 +605,175 @@ bool GLMessage_Function_IsValid(int value) {
     case 559:
     case 560:
     case 561:
+    case 562:
+    case 563:
+    case 564:
+    case 565:
+    case 566:
+    case 567:
+    case 568:
+    case 569:
+    case 570:
+    case 571:
+    case 572:
+    case 573:
+    case 574:
+    case 575:
+    case 576:
+    case 577:
+    case 578:
+    case 579:
+    case 580:
+    case 581:
+    case 582:
+    case 583:
+    case 584:
+    case 585:
+    case 586:
+    case 587:
+    case 588:
+    case 589:
+    case 590:
+    case 591:
+    case 592:
+    case 593:
+    case 594:
+    case 595:
+    case 596:
+    case 597:
+    case 598:
+    case 599:
+    case 600:
+    case 601:
+    case 602:
+    case 603:
+    case 604:
+    case 605:
+    case 606:
+    case 607:
+    case 608:
+    case 609:
+    case 610:
+    case 611:
+    case 612:
+    case 613:
+    case 614:
+    case 615:
+    case 616:
+    case 617:
+    case 618:
+    case 619:
+    case 620:
+    case 621:
+    case 622:
+    case 623:
+    case 624:
+    case 625:
+    case 626:
+    case 627:
+    case 628:
+    case 629:
+    case 630:
+    case 631:
+    case 632:
+    case 633:
+    case 634:
+    case 635:
+    case 636:
+    case 637:
+    case 638:
+    case 639:
+    case 640:
+    case 641:
+    case 642:
+    case 643:
+    case 644:
+    case 645:
+    case 646:
+    case 647:
+    case 648:
+    case 649:
+    case 650:
+    case 651:
+    case 652:
+    case 653:
+    case 654:
+    case 655:
+    case 656:
+    case 657:
+    case 658:
+    case 659:
+    case 660:
+    case 661:
+    case 662:
+    case 663:
+    case 664:
+    case 665:
+    case 666:
+    case 667:
+    case 668:
+    case 669:
+    case 670:
+    case 671:
+    case 672:
+    case 673:
+    case 674:
+    case 675:
+    case 676:
+    case 677:
+    case 678:
+    case 679:
+    case 680:
+    case 681:
+    case 682:
+    case 683:
+    case 684:
+    case 685:
+    case 686:
+    case 687:
+    case 688:
+    case 689:
+    case 690:
+    case 691:
+    case 692:
+    case 693:
+    case 694:
+    case 695:
+    case 696:
+    case 697:
+    case 698:
+    case 699:
+    case 700:
+    case 701:
+    case 702:
+    case 703:
+    case 704:
+    case 705:
+    case 706:
+    case 707:
+    case 708:
+    case 709:
+    case 710:
+    case 711:
+    case 712:
+    case 713:
+    case 714:
+    case 715:
+    case 716:
+    case 717:
+    case 718:
+    case 719:
+    case 720:
+    case 721:
+    case 722:
+    case 723:
+    case 724:
+    case 725:
+    case 726:
+    case 727:
+    case 728:
+    case 729:
+    case 730:
     case 2000:
     case 2001:
     case 2002:
@@ -910,6 +1205,132 @@ const GLMessage_Function GLMessage::glVertexAttribPointer;
 const GLMessage_Function GLMessage::glVertexPointer;
 const GLMessage_Function GLMessage::glViewport;
 const GLMessage_Function GLMessage::glWeightPointerOES;
+const GLMessage_Function GLMessage::glReadBuffer;
+const GLMessage_Function GLMessage::glDrawRangeElements;
+const GLMessage_Function GLMessage::glTexImage3D;
+const GLMessage_Function GLMessage::glTexSubImage3D;
+const GLMessage_Function GLMessage::glCopyTexSubImage3D;
+const GLMessage_Function GLMessage::glCompressedTexImage3D;
+const GLMessage_Function GLMessage::glCompressedTexSubImage3D;
+const GLMessage_Function GLMessage::glGenQueries;
+const GLMessage_Function GLMessage::glDeleteQueries;
+const GLMessage_Function GLMessage::glIsQuery;
+const GLMessage_Function GLMessage::glBeginQuery;
+const GLMessage_Function GLMessage::glEndQuery;
+const GLMessage_Function GLMessage::glGetQueryiv;
+const GLMessage_Function GLMessage::glGetQueryObjectuiv;
+const GLMessage_Function GLMessage::glUnmapBuffer;
+const GLMessage_Function GLMessage::glGetBufferPointerv;
+const GLMessage_Function GLMessage::glDrawBuffers;
+const GLMessage_Function GLMessage::glUniformMatrix2x3fv;
+const GLMessage_Function GLMessage::glUniformMatrix3x2fv;
+const GLMessage_Function GLMessage::glUniformMatrix2x4fv;
+const GLMessage_Function GLMessage::glUniformMatrix4x2fv;
+const GLMessage_Function GLMessage::glUniformMatrix3x4fv;
+const GLMessage_Function GLMessage::glUniformMatrix4x3fv;
+const GLMessage_Function GLMessage::glBlitFramebuffer;
+const GLMessage_Function GLMessage::glRenderbufferStorageMultisample;
+const GLMessage_Function GLMessage::glFramebufferTextureLayer;
+const GLMessage_Function GLMessage::glMapBufferRange;
+const GLMessage_Function GLMessage::glFlushMappedBufferRange;
+const GLMessage_Function GLMessage::glBindVertexArray;
+const GLMessage_Function GLMessage::glDeleteVertexArrays;
+const GLMessage_Function GLMessage::glGenVertexArrays;
+const GLMessage_Function GLMessage::glIsVertexArray;
+const GLMessage_Function GLMessage::glGetIntegeri_v;
+const GLMessage_Function GLMessage::glBeginTransformFeedback;
+const GLMessage_Function GLMessage::glEndTransformFeedback;
+const GLMessage_Function GLMessage::glBindBufferRange;
+const GLMessage_Function GLMessage::glBindBufferBase;
+const GLMessage_Function GLMessage::glTransformFeedbackVaryings;
+const GLMessage_Function GLMessage::glGetTransformFeedbackVarying;
+const GLMessage_Function GLMessage::glVertexAttribIPointer;
+const GLMessage_Function GLMessage::glGetVertexAttribIiv;
+const GLMessage_Function GLMessage::glGetVertexAttribIuiv;
+const GLMessage_Function GLMessage::glVertexAttribI4i;
+const GLMessage_Function GLMessage::glVertexAttribI4ui;
+const GLMessage_Function GLMessage::glVertexAttribI4iv;
+const GLMessage_Function GLMessage::glVertexAttribI4uiv;
+const GLMessage_Function GLMessage::glGetUniformuiv;
+const GLMessage_Function GLMessage::glGetFragDataLocation;
+const GLMessage_Function GLMessage::glUniform1ui;
+const GLMessage_Function GLMessage::glUniform2ui;
+const GLMessage_Function GLMessage::glUniform3ui;
+const GLMessage_Function GLMessage::glUniform4ui;
+const GLMessage_Function GLMessage::glUniform1uiv;
+const GLMessage_Function GLMessage::glUniform2uiv;
+const GLMessage_Function GLMessage::glUniform3uiv;
+const GLMessage_Function GLMessage::glUniform4uiv;
+const GLMessage_Function GLMessage::glClearBufferiv;
+const GLMessage_Function GLMessage::glClearBufferuiv;
+const GLMessage_Function GLMessage::glClearBufferfv;
+const GLMessage_Function GLMessage::glClearBufferfi;
+const GLMessage_Function GLMessage::glGetStringi;
+const GLMessage_Function GLMessage::glCopyBufferSubData;
+const GLMessage_Function GLMessage::glGetUniformIndices;
+const GLMessage_Function GLMessage::glGetActiveUniformsiv;
+const GLMessage_Function GLMessage::glGetUniformBlockIndex;
+const GLMessage_Function GLMessage::glGetActiveUniformBlockiv;
+const GLMessage_Function GLMessage::glGetActiveUniformBlockName;
+const GLMessage_Function GLMessage::glUniformBlockBinding;
+const GLMessage_Function GLMessage::glDrawArraysInstanced;
+const GLMessage_Function GLMessage::glDrawElementsInstanced;
+const GLMessage_Function GLMessage::glFenceSync;
+const GLMessage_Function GLMessage::glIsSync;
+const GLMessage_Function GLMessage::glDeleteSync;
+const GLMessage_Function GLMessage::glClientWaitSync;
+const GLMessage_Function GLMessage::glWaitSync;
+const GLMessage_Function GLMessage::glGetInteger64v;
+const GLMessage_Function GLMessage::glGetSynciv;
+const GLMessage_Function GLMessage::glGetInteger64i_v;
+const GLMessage_Function GLMessage::glGetBufferParameteri64v;
+const GLMessage_Function GLMessage::glGenSamplers;
+const GLMessage_Function GLMessage::glDeleteSamplers;
+const GLMessage_Function GLMessage::glIsSampler;
+const GLMessage_Function GLMessage::glBindSampler;
+const GLMessage_Function GLMessage::glSamplerParameteri;
+const GLMessage_Function GLMessage::glSamplerParameteriv;
+const GLMessage_Function GLMessage::glSamplerParameterf;
+const GLMessage_Function GLMessage::glSamplerParameterfv;
+const GLMessage_Function GLMessage::glGetSamplerParameteriv;
+const GLMessage_Function GLMessage::glGetSamplerParameterfv;
+const GLMessage_Function GLMessage::glVertexAttribDivisor;
+const GLMessage_Function GLMessage::glBindTransformFeedback;
+const GLMessage_Function GLMessage::glDeleteTransformFeedbacks;
+const GLMessage_Function GLMessage::glGenTransformFeedbacks;
+const GLMessage_Function GLMessage::glIsTransformFeedback;
+const GLMessage_Function GLMessage::glPauseTransformFeedback;
+const GLMessage_Function GLMessage::glResumeTransformFeedback;
+const GLMessage_Function GLMessage::glGetProgramBinary;
+const GLMessage_Function GLMessage::glProgramBinary;
+const GLMessage_Function GLMessage::glProgramParameteri;
+const GLMessage_Function GLMessage::glInvalidateFramebuffer;
+const GLMessage_Function GLMessage::glInvalidateSubFramebuffer;
+const GLMessage_Function GLMessage::glTexStorage2D;
+const GLMessage_Function GLMessage::glTexStorage3D;
+const GLMessage_Function GLMessage::glGetInternalformativ;
+const GLMessage_Function GLMessage::glBeginPerfQueryINTEL;
+const GLMessage_Function GLMessage::glCreatePerfQueryINTEL;
+const GLMessage_Function GLMessage::glDeletePerfQueryINTEL;
+const GLMessage_Function GLMessage::glEndPerfQueryINTEL;
+const GLMessage_Function GLMessage::glGetFirstPerfQueryIdINTEL;
+const GLMessage_Function GLMessage::glGetNextPerfQueryIdINTEL;
+const GLMessage_Function GLMessage::glGetPerfCounterInfoINTEL;
+const GLMessage_Function GLMessage::glGetPerfQueryDataINTEL;
+const GLMessage_Function GLMessage::glGetPerfQueryIdByNameINTEL;
+const GLMessage_Function GLMessage::glGetPerfQueryInfoINTEL;
+const GLMessage_Function GLMessage::glBlendBarrierKHR;
+const GLMessage_Function GLMessage::glBlendBarrierNV;
+const GLMessage_Function GLMessage::glBlendParameteriNV;
+const GLMessage_Function GLMessage::glBlitFramebufferNV;
+const GLMessage_Function GLMessage::glFenceSyncAPPLE;
+const GLMessage_Function GLMessage::glIsSyncAPPLE;
+const GLMessage_Function GLMessage::glDeleteSyncAPPLE;
+const GLMessage_Function GLMessage::glClientWaitSyncAPPLE;
+const GLMessage_Function GLMessage::glWaitSyncAPPLE;
+const GLMessage_Function GLMessage::glGetInteger64vAPPLE;
+const GLMessage_Function GLMessage::glGetSyncivAPPLE;
+const GLMessage_Function GLMessage::glCopyBufferSubDataNV;
 const GLMessage_Function GLMessage::glActiveShaderProgramEXT;
 const GLMessage_Function GLMessage::glAlphaFuncQCOM;
 const GLMessage_Function GLMessage::glBeginQueryEXT;
@@ -971,6 +1392,175 @@ const GLMessage_Function GLMessage::glTextureStorage2DEXT;
 const GLMessage_Function GLMessage::glTextureStorage3DEXT;
 const GLMessage_Function GLMessage::glUseProgramStagesEXT;
 const GLMessage_Function GLMessage::glValidateProgramPipelineEXT;
+const GLMessage_Function GLMessage::glCopyTextureLevelsAPPLE;
+const GLMessage_Function GLMessage::glDebugMessageControlKHR;
+const GLMessage_Function GLMessage::glDebugMessageInsertKHR;
+const GLMessage_Function GLMessage::glDebugMessageCallbackKHR;
+const GLMessage_Function GLMessage::glGetDebugMessageLogKHR;
+const GLMessage_Function GLMessage::glPushDebugGroupKHR;
+const GLMessage_Function GLMessage::glPopDebugGroupKHR;
+const GLMessage_Function GLMessage::glObjectLabelKHR;
+const GLMessage_Function GLMessage::glGetObjectLabelKHR;
+const GLMessage_Function GLMessage::glObjectPtrLabelKHR;
+const GLMessage_Function GLMessage::glGetObjectPtrLabelKHR;
+const GLMessage_Function GLMessage::glGetPointervKHR;
+const GLMessage_Function GLMessage::glDrawArraysInstancedANGLE;
+const GLMessage_Function GLMessage::glDrawElementsInstancedANGLE;
+const GLMessage_Function GLMessage::glVertexAttribDivisorANGLE;
+const GLMessage_Function GLMessage::glDrawArraysInstancedEXT;
+const GLMessage_Function GLMessage::glDrawElementsInstancedEXT;
+const GLMessage_Function GLMessage::glVertexAttribDivisorEXT;
+const GLMessage_Function GLMessage::glDrawArraysInstancedNV;
+const GLMessage_Function GLMessage::glDrawElementsInstancedNV;
+const GLMessage_Function GLMessage::glVertexAttribDivisorNV;
+const GLMessage_Function GLMessage::glDrawBuffersEXT;
+const GLMessage_Function GLMessage::glReadBufferIndexedEXT;
+const GLMessage_Function GLMessage::glDrawBuffersIndexedEXT;
+const GLMessage_Function GLMessage::glGetIntegeri_vEXT;
+const GLMessage_Function GLMessage::glMapBufferRangeEXT;
+const GLMessage_Function GLMessage::glFlushMappedBufferRangeEXT;
+const GLMessage_Function GLMessage::glQueryCounterEXT;
+const GLMessage_Function GLMessage::glGetQueryObjecti64vEXT;
+const GLMessage_Function GLMessage::glGetQueryObjectivEXT;
+const GLMessage_Function GLMessage::glGetQueryObjectui64vEXT;
+const GLMessage_Function GLMessage::glGetTranslatedShaderSourceANGLE;
+const GLMessage_Function GLMessage::glMinSampleShadingOES;
+const GLMessage_Function GLMessage::glMultiTexCoord1bOES;
+const GLMessage_Function GLMessage::glMultiTexCoord1bvOES;
+const GLMessage_Function GLMessage::glMultiTexCoord2bOES;
+const GLMessage_Function GLMessage::glMultiTexCoord2bvOES;
+const GLMessage_Function GLMessage::glMultiTexCoord3bOES;
+const GLMessage_Function GLMessage::glMultiTexCoord3bvOES;
+const GLMessage_Function GLMessage::glMultiTexCoord4bOES;
+const GLMessage_Function GLMessage::glMultiTexCoord4bvOES;
+const GLMessage_Function GLMessage::glTexCoord1bOES;
+const GLMessage_Function GLMessage::glTexCoord1bvOES;
+const GLMessage_Function GLMessage::glTexCoord2bOES;
+const GLMessage_Function GLMessage::glTexCoord2bvOES;
+const GLMessage_Function GLMessage::glTexCoord3bOES;
+const GLMessage_Function GLMessage::glTexCoord3bvOES;
+const GLMessage_Function GLMessage::glTexCoord4bOES;
+const GLMessage_Function GLMessage::glTexCoord4bvOES;
+const GLMessage_Function GLMessage::glVertex2bOES;
+const GLMessage_Function GLMessage::glVertex2bvOES;
+const GLMessage_Function GLMessage::glVertex3bOES;
+const GLMessage_Function GLMessage::glVertex3bvOES;
+const GLMessage_Function GLMessage::glVertex4bOES;
+const GLMessage_Function GLMessage::glVertex4bvOES;
+const GLMessage_Function GLMessage::glProgramUniform1uiEXT;
+const GLMessage_Function GLMessage::glProgramUniform2uiEXT;
+const GLMessage_Function GLMessage::glProgramUniform3uiEXT;
+const GLMessage_Function GLMessage::glProgramUniform4uiEXT;
+const GLMessage_Function GLMessage::glProgramUniform1uivEXT;
+const GLMessage_Function GLMessage::glProgramUniform2uivEXT;
+const GLMessage_Function GLMessage::glProgramUniform3uivEXT;
+const GLMessage_Function GLMessage::glProgramUniform4uivEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix2x3fvEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix3x2fvEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix2x4fvEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix4x2fvEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix3x4fvEXT;
+const GLMessage_Function GLMessage::glProgramUniformMatrix4x3fvEXT;
+const GLMessage_Function GLMessage::glRenderbufferStorageMultisampleNV;
+const GLMessage_Function GLMessage::glSampleCoverageOES;
+const GLMessage_Function GLMessage::glTexStorage3DMultisampleOES;
+const GLMessage_Function GLMessage::glUniformMatrix2x3fvNV;
+const GLMessage_Function GLMessage::glUniformMatrix3x2fvNV;
+const GLMessage_Function GLMessage::glUniformMatrix2x4fvNV;
+const GLMessage_Function GLMessage::glUniformMatrix4x2fvNV;
+const GLMessage_Function GLMessage::glUniformMatrix3x4fvNV;
+const GLMessage_Function GLMessage::glUniformMatrix4x3fvNV;
+const GLMessage_Function GLMessage::glActiveShaderProgram;
+const GLMessage_Function GLMessage::glBindImageTexture;
+const GLMessage_Function GLMessage::glBindProgramPipeline;
+const GLMessage_Function GLMessage::glBindVertexBuffer;
+const GLMessage_Function GLMessage::glCreateShaderProgramv;
+const GLMessage_Function GLMessage::glDeleteProgramPipelines;
+const GLMessage_Function GLMessage::glDispatchCompute;
+const GLMessage_Function GLMessage::glDispatchComputeIndirect;
+const GLMessage_Function GLMessage::glDrawArraysIndirect;
+const GLMessage_Function GLMessage::glDrawElementsIndirect;
+const GLMessage_Function GLMessage::glFramebufferParameteri;
+const GLMessage_Function GLMessage::glGenProgramPipelines;
+const GLMessage_Function GLMessage::glGetBooleani_v;
+const GLMessage_Function GLMessage::glGetFramebufferParameteriv;
+const GLMessage_Function GLMessage::glGetMultisamplefv;
+const GLMessage_Function GLMessage::glGetProgramInterfaceiv;
+const GLMessage_Function GLMessage::glGetProgramPipelineInfoLog;
+const GLMessage_Function GLMessage::glGetProgramPipelineiv;
+const GLMessage_Function GLMessage::glGetProgramResourceIndex;
+const GLMessage_Function GLMessage::glGetProgramResourceLocation;
+const GLMessage_Function GLMessage::glGetProgramResourceName;
+const GLMessage_Function GLMessage::glGetProgramResourceiv;
+const GLMessage_Function GLMessage::glGetTexLevelParameterfv;
+const GLMessage_Function GLMessage::glGetTexLevelParameteriv;
+const GLMessage_Function GLMessage::glIsProgramPipeline;
+const GLMessage_Function GLMessage::glMemoryBarrier;
+const GLMessage_Function GLMessage::glMemoryBarrierByRegion;
+const GLMessage_Function GLMessage::glProgramUniform1f;
+const GLMessage_Function GLMessage::glProgramUniform1fv;
+const GLMessage_Function GLMessage::glProgramUniform1i;
+const GLMessage_Function GLMessage::glProgramUniform1iv;
+const GLMessage_Function GLMessage::glProgramUniform1ui;
+const GLMessage_Function GLMessage::glProgramUniform1uiv;
+const GLMessage_Function GLMessage::glProgramUniform2f;
+const GLMessage_Function GLMessage::glProgramUniform2fv;
+const GLMessage_Function GLMessage::glProgramUniform2i;
+const GLMessage_Function GLMessage::glProgramUniform2iv;
+const GLMessage_Function GLMessage::glProgramUniform2ui;
+const GLMessage_Function GLMessage::glProgramUniform2uiv;
+const GLMessage_Function GLMessage::glProgramUniform3f;
+const GLMessage_Function GLMessage::glProgramUniform3fv;
+const GLMessage_Function GLMessage::glProgramUniform3i;
+const GLMessage_Function GLMessage::glProgramUniform3iv;
+const GLMessage_Function GLMessage::glProgramUniform3ui;
+const GLMessage_Function GLMessage::glProgramUniform3uiv;
+const GLMessage_Function GLMessage::glProgramUniform4f;
+const GLMessage_Function GLMessage::glProgramUniform4fv;
+const GLMessage_Function GLMessage::glProgramUniform4i;
+const GLMessage_Function GLMessage::glProgramUniform4iv;
+const GLMessage_Function GLMessage::glProgramUniform4ui;
+const GLMessage_Function GLMessage::glProgramUniform4uiv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix2fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix2x3fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix2x4fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix3fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix3x2fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix3x4fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix4fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix4x2fv;
+const GLMessage_Function GLMessage::glProgramUniformMatrix4x3fv;
+const GLMessage_Function GLMessage::glSampleMaski;
+const GLMessage_Function GLMessage::glTexStorage2DMultisample;
+const GLMessage_Function GLMessage::glUseProgramStages;
+const GLMessage_Function GLMessage::glValidateProgramPipeline;
+const GLMessage_Function GLMessage::glVertexAttribBinding;
+const GLMessage_Function GLMessage::glVertexAttribFormat;
+const GLMessage_Function GLMessage::glVertexAttribIFormat;
+const GLMessage_Function GLMessage::glVertexBindingDivisor;
+const GLMessage_Function GLMessage::glBlendEquationSeparateiEXT;
+const GLMessage_Function GLMessage::glBlendEquationiEXT;
+const GLMessage_Function GLMessage::glBlendFuncSeparateiEXT;
+const GLMessage_Function GLMessage::glBlendFunciEXT;
+const GLMessage_Function GLMessage::glColorMaskiEXT;
+const GLMessage_Function GLMessage::glCopyImageSubDataEXT;
+const GLMessage_Function GLMessage::glDisableiEXT;
+const GLMessage_Function GLMessage::glEnableiEXT;
+const GLMessage_Function GLMessage::glFramebufferTextureEXT;
+const GLMessage_Function GLMessage::glGetSamplerParameterIivEXT;
+const GLMessage_Function GLMessage::glGetSamplerParameterIuivEXT;
+const GLMessage_Function GLMessage::glGetTexParameterIivEXT;
+const GLMessage_Function GLMessage::glGetTexParameterIuivEXT;
+const GLMessage_Function GLMessage::glIsEnablediEXT;
+const GLMessage_Function GLMessage::glPatchParameteriEXT;
+const GLMessage_Function GLMessage::glPrimitiveBoundingBoxEXT;
+const GLMessage_Function GLMessage::glSamplerParameterIivEXT;
+const GLMessage_Function GLMessage::glSamplerParameterIuivEXT;
+const GLMessage_Function GLMessage::glTexBufferEXT;
+const GLMessage_Function GLMessage::glTexBufferRangeEXT;
+const GLMessage_Function GLMessage::glTexParameterIivEXT;
+const GLMessage_Function GLMessage::glTexParameterIuivEXT;
+const GLMessage_Function GLMessage::glTextureViewEXT;
 const GLMessage_Function GLMessage::eglGetDisplay;
 const GLMessage_Function GLMessage::eglInitialize;
 const GLMessage_Function GLMessage::eglTerminate;
@@ -1032,6 +1622,7 @@ bool GLMessage_DataType_Type_IsValid(int value) {
     case 5:
     case 6:
     case 7:
+    case 8:
       return true;
     default:
       return false;
@@ -1046,6 +1637,7 @@ const GLMessage_DataType_Type GLMessage_DataType::INT;
 const GLMessage_DataType_Type GLMessage_DataType::FLOAT;
 const GLMessage_DataType_Type GLMessage_DataType::BOOL;
 const GLMessage_DataType_Type GLMessage_DataType::ENUM;
+const GLMessage_DataType_Type GLMessage_DataType::INT64;
 const GLMessage_DataType_Type GLMessage_DataType::Type_MIN;
 const GLMessage_DataType_Type GLMessage_DataType::Type_MAX;
 const int GLMessage_DataType::Type_ARRAYSIZE;
@@ -1058,6 +1650,7 @@ const int GLMessage_DataType::kFloatValueFieldNumber;
 const int GLMessage_DataType::kCharValueFieldNumber;
 const int GLMessage_DataType::kRawBytesFieldNumber;
 const int GLMessage_DataType::kBoolValueFieldNumber;
+const int GLMessage_DataType::kInt64ValueFieldNumber;
 #endif  // !_MSC_VER
 
 GLMessage_DataType::GLMessage_DataType()
@@ -1115,6 +1708,7 @@ void GLMessage_DataType::Clear() {
   charvalue_.Clear();
   rawbytes_.Clear();
   boolvalue_.Clear();
+  int64value_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1250,6 +1844,28 @@ bool GLMessage_DataType::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(56)) goto parse_boolValue;
+        if (input->ExpectTag(64)) goto parse_int64Value;
+        break;
+      }
+      
+      // repeated int64 int64Value = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_int64Value:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 1, 64, input, this->mutable_int64value())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, this->mutable_int64value())));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(64)) goto parse_int64Value;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1312,6 +1928,12 @@ void GLMessage_DataType::SerializeWithCachedSizes(
       7, this->boolvalue(i), output);
   }
   
+  // repeated int64 int64Value = 8;
+  for (int i = 0; i < this->int64value_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(
+      8, this->int64value(i), output);
+  }
+  
 }
 
 int GLMessage_DataType::ByteSize() const {
@@ -1368,6 +1990,16 @@ int GLMessage_DataType::ByteSize() const {
     total_size += 1 * this->boolvalue_size() + data_size;
   }
   
+  // repeated int64 int64Value = 8;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->int64value_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int64Size(this->int64value(i));
+    }
+    total_size += 1 * this->int64value_size() + data_size;
+  }
+  
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -1386,6 +2018,7 @@ void GLMessage_DataType::MergeFrom(const GLMessage_DataType& from) {
   charvalue_.MergeFrom(from.charvalue_);
   rawbytes_.MergeFrom(from.rawbytes_);
   boolvalue_.MergeFrom(from.boolvalue_);
+  int64value_.MergeFrom(from.int64value_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
       set_type(from.type());
@@ -1417,6 +2050,7 @@ void GLMessage_DataType::Swap(GLMessage_DataType* other) {
     charvalue_.Swap(&other->charvalue_);
     rawbytes_.Swap(&other->rawbytes_);
     boolvalue_.Swap(&other->boolvalue_);
+    int64value_.Swap(&other->int64value_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     std::swap(_cached_size_, other->_cached_size_);
   }

@@ -44,6 +44,8 @@ enum {
     ACONFIGURATION_DENSITY_HIGH = 240,
     ACONFIGURATION_DENSITY_XHIGH = 320,
     ACONFIGURATION_DENSITY_XXHIGH = 480,
+    ACONFIGURATION_DENSITY_XXXHIGH = 640,
+    ACONFIGURATION_DENSITY_ANY = 0xfffe,
     ACONFIGURATION_DENSITY_NONE = 0xffff,
 
     ACONFIGURATION_KEYBOARD_ANY  = 0x0000,
@@ -82,6 +84,7 @@ enum {
     ACONFIGURATION_UI_MODE_TYPE_CAR = 0x03,
     ACONFIGURATION_UI_MODE_TYPE_TELEVISION = 0x04,
     ACONFIGURATION_UI_MODE_TYPE_APPLIANCE = 0x05,
+    ACONFIGURATION_UI_MODE_TYPE_WATCH = 0x06,
 
     ACONFIGURATION_UI_MODE_NIGHT_ANY = 0x00,
     ACONFIGURATION_UI_MODE_NIGHT_NO = 0x1,
@@ -92,6 +95,10 @@ enum {
     ACONFIGURATION_SCREEN_HEIGHT_DP_ANY = 0x0000,
 
     ACONFIGURATION_SMALLEST_SCREEN_WIDTH_DP_ANY = 0x0000,
+
+    ACONFIGURATION_LAYOUTDIR_ANY  = 0x00,
+    ACONFIGURATION_LAYOUTDIR_LTR  = 0x01,
+    ACONFIGURATION_LAYOUTDIR_RTL  = 0x02,
 
     ACONFIGURATION_MCC = 0x0001,
     ACONFIGURATION_MNC = 0x0002,
@@ -107,6 +114,9 @@ enum {
     ACONFIGURATION_SCREEN_LAYOUT = 0x0800,
     ACONFIGURATION_UI_MODE = 0x1000,
     ACONFIGURATION_SMALLEST_SCREEN_SIZE = 0x2000,
+    ACONFIGURATION_LAYOUTDIR = 0x4000,
+
+    ACONFIGURATION_MNC_ZERO = 0xffff,
 };
 
 /**
@@ -329,6 +339,17 @@ int32_t AConfiguration_getSmallestScreenWidthDp(AConfiguration* config);
  * Set the configuration's smallest screen width in dp units.
  */
 void AConfiguration_setSmallestScreenWidthDp(AConfiguration* config, int32_t value);
+
+/**
+ * Return the configuration's layout direction, or
+ * ACONFIGURATION_LAYOUTDIR_ANY if not set.
+ */
+int32_t AConfiguration_getLayoutDirection(AConfiguration* config);
+
+/**
+ * Set the configuration's layout direction.
+ */
+void AConfiguration_setLayoutDirection(AConfiguration* config, int32_t value);
 
 /**
  * Perform a diff between two configurations.  Returns a bit mask of

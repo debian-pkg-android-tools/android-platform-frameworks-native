@@ -21,10 +21,13 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <GLES/gl.h>
-#include <GLES/glext.h>
 
 #include <cutils/log.h>
+
+#define ATRACE_TAG ATRACE_TAG_GRAPHICS
+#include <utils/Trace.h>
+
+#include <utils/CallStack.h>
 
 #include "egl_tls.h"
 #include "hooks.h"
@@ -34,7 +37,8 @@ namespace android {
 // ----------------------------------------------------------------------------
 
 struct GLenumString {
-    GLenum e;
+    // The GL_TIMEOUT_IGNORED "enum" doesn't fit in a GLenum, so use GLuint64
+    GLuint64 e;
     const char* s;
 };
 
@@ -314,6 +318,10 @@ static void TraceGL(const char* name, int numArgs, ...) {
     va_end(argp);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Log trace
+///////////////////////////////////////////////////////////////////////////
+
 #undef TRACE_GL_VOID
 #undef TRACE_GL
 
@@ -349,28 +357,101 @@ EGLAPI gl_hooks_t gHooksTrace = {
 };
 #undef GL_ENTRY
 
+#undef TRACE_GL_VOID
+#undef TRACE_GL
+
+///////////////////////////////////////////////////////////////////////////
+// Systrace
+///////////////////////////////////////////////////////////////////////////
 
 #undef TRACE_GL_VOID
 #undef TRACE_GL
 
-// define the ES 1.0 Debug_gl* functions as Tracing_gl functions
 #define TRACE_GL_VOID(_api, _args, _argList, ...)                         \
-static void Debug_ ## _api _args {                                      \
-    TraceGL(#_api, __VA_ARGS__);                                          \
+static void Systrace_ ## _api _args {                                     \
+    ATRACE_NAME(#_api);                                                   \
     gl_hooks_t::gl_t const * const _c = &getGLTraceThreadSpecific()->gl;  \
     _c->_api _argList;                                                    \
 }
 
 #define TRACE_GL(_type, _api, _args, _argList, ...)                       \
-static _type Debug_ ## _api _args {                                     \
-    TraceGL(#_api, __VA_ARGS__);                                        \
+static _type Systrace_ ## _api _args {                                    \
+    ATRACE_NAME(#_api);                                                   \
     gl_hooks_t::gl_t const * const _c = &getGLTraceThreadSpecific()->gl;  \
     return _c->_api _argList;                                             \
 }
 
 extern "C" {
-#include "../debug.in"
+#include "../trace.in"
 }
+
+#undef TRACE_GL_VOID
+#undef TRACE_GL
+
+#define GL_ENTRY(_r, _api, ...) Systrace_ ## _api,
+EGLAPI gl_hooks_t gHooksSystrace = {
+    {
+        #include "entries.in"
+    },
+    {
+        {0}
+    }
+};
+#undef GL_ENTRY
+
+///////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////
+
+#undef TRACE_GL_VOID
+#undef TRACE_GL
+
+#define CHECK_ERROR(_c, _api)                                             \
+    GLenum status = GL_NO_ERROR;                                          \
+    bool error = false;                                                   \
+    while ((status = _c->glGetError()) != GL_NO_ERROR) {                  \
+        ALOGD("[" #_api "] 0x%x", status);                                \
+        error = true;                                                     \
+    }                                                                     \
+    if (error) {                                                          \
+        CallStack s;                                                      \
+        s.update();                                                       \
+        s.log("glGetError:" #_api);                                       \
+    }                                                                     \
+
+#define TRACE_GL_VOID(_api, _args, _argList, ...)                         \
+static void ErrorTrace_ ## _api _args {                                   \
+    gl_hooks_t::gl_t const * const _c = &getGLTraceThreadSpecific()->gl;  \
+    _c->_api _argList;                                                    \
+    CHECK_ERROR(_c, _api);                                                \
+}
+
+#define TRACE_GL(_type, _api, _args, _argList, ...)                       \
+static _type ErrorTrace_ ## _api _args {                                  \
+    gl_hooks_t::gl_t const * const _c = &getGLTraceThreadSpecific()->gl;  \
+    _type _r = _c->_api _argList;                                         \
+    CHECK_ERROR(_c, _api);                                                \
+    return _r;                                                            \
+}
+
+extern "C" {
+#include "../trace.in"
+}
+
+#undef TRACE_GL_VOID
+#undef TRACE_GL
+
+#define GL_ENTRY(_r, _api, ...) ErrorTrace_ ## _api,
+EGLAPI gl_hooks_t gHooksErrorTrace = {
+    {
+        #include "entries.in"
+    },
+    {
+        {0}
+    }
+};
+#undef GL_ENTRY
+#undef CHECK_ERROR
 
 #undef TRACE_GL_VOID
 #undef TRACE_GL

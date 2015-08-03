@@ -18,7 +18,6 @@
 
 #include <binder/IServiceManager.h>
 
-#include <utils/Debug.h>
 #include <utils/Log.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
@@ -37,9 +36,11 @@ sp<IServiceManager> defaultServiceManager()
     
     {
         AutoMutex _l(gDefaultServiceManagerLock);
-        if (gDefaultServiceManager == NULL) {
+        while (gDefaultServiceManager == NULL) {
             gDefaultServiceManager = interface_cast<IServiceManager>(
                 ProcessState::self()->getContextObject(NULL));
+            if (gDefaultServiceManager == NULL)
+                sleep(1);
         }
     }
     

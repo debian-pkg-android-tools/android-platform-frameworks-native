@@ -49,15 +49,21 @@ void MessageBase::handleMessage(const Message&) {
 
 // ---------------------------------------------------------------------------
 
-void MessageQueue::Handler::signalRefresh() {
+void MessageQueue::Handler::dispatchRefresh() {
     if ((android_atomic_or(eventMaskRefresh, &mEventMask) & eventMaskRefresh) == 0) {
         mQueue.mLooper->sendMessage(this, Message(MessageQueue::REFRESH));
     }
 }
 
-void MessageQueue::Handler::signalInvalidate() {
+void MessageQueue::Handler::dispatchInvalidate() {
     if ((android_atomic_or(eventMaskInvalidate, &mEventMask) & eventMaskInvalidate) == 0) {
         mQueue.mLooper->sendMessage(this, Message(MessageQueue::INVALIDATE));
+    }
+}
+
+void MessageQueue::Handler::dispatchTransaction() {
+    if ((android_atomic_or(eventMaskTransaction, &mEventMask) & eventMaskTransaction) == 0) {
+        mQueue.mLooper->sendMessage(this, Message(MessageQueue::TRANSACTION));
     }
 }
 
@@ -69,6 +75,10 @@ void MessageQueue::Handler::handleMessage(const Message& message) {
             break;
         case REFRESH:
             android_atomic_and(~eventMaskRefresh, &mEventMask);
+            mQueue.mFlinger->onMessageReceived(message.what);
+            break;
+        case TRANSACTION:
+            android_atomic_and(~eventMaskTransaction, &mEventMask);
             mQueue.mFlinger->onMessageReceived(message.what);
             break;
     }
@@ -95,7 +105,7 @@ void MessageQueue::setEventThread(const sp<EventThread>& eventThread)
     mEventThread = eventThread;
     mEvents = eventThread->createEventConnection();
     mEventTube = mEvents->getDataChannel();
-    mLooper->addFd(mEventTube->getFd(), 0, ALOOPER_EVENT_INPUT,
+    mLooper->addFd(mEventTube->getFd(), 0, Looper::EVENT_INPUT,
             MessageQueue::cb_eventReceiver, this);
 }
 
@@ -104,12 +114,12 @@ void MessageQueue::waitMessage() {
         IPCThreadState::self()->flushCommands();
         int32_t ret = mLooper->pollOnce(-1);
         switch (ret) {
-            case ALOOPER_POLL_WAKE:
-            case ALOOPER_POLL_CALLBACK:
+            case Looper::POLL_WAKE:
+            case Looper::POLL_CALLBACK:
                 continue;
-            case ALOOPER_POLL_ERROR:
-                ALOGE("ALOOPER_POLL_ERROR");
-            case ALOOPER_POLL_TIMEOUT:
+            case Looper::POLL_ERROR:
+                ALOGE("Looper::POLL_ERROR");
+            case Looper::POLL_TIMEOUT:
                 // timeout (should not happen)
                 continue;
             default:
@@ -132,13 +142,36 @@ status_t MessageQueue::postMessage(
     return NO_ERROR;
 }
 
+
+/* when INVALIDATE_ON_VSYNC is set SF only processes
+ * buffer updates on VSYNC and performs a refresh immediately
+ * after.
+ *
+ * when INVALIDATE_ON_VSYNC is set to false, SF will instead
+ * perform the buffer updates immediately, but the refresh only
+ * at the next VSYNC.
+ * THIS MODE IS BUGGY ON GALAXY NEXUS AND WILL CAUSE HANGS
+ */
+#define INVALIDATE_ON_VSYNC 1
+
+void MessageQueue::invalidateTransactionNow() {
+    mHandler->dispatchTransaction();
+}
+
 void MessageQueue::invalidate() {
-//    mHandler->signalInvalidate();
+#if INVALIDATE_ON_VSYNC
     mEvents->requestNextVsync();
+#else
+    mHandler->dispatchInvalidate();
+#endif
 }
 
 void MessageQueue::refresh() {
+#if INVALIDATE_ON_VSYNC
+    mHandler->dispatchRefresh();
+#else
     mEvents->requestNextVsync();
+#endif
 }
 
 int MessageQueue::cb_eventReceiver(int fd, int events, void* data) {
@@ -146,13 +179,17 @@ int MessageQueue::cb_eventReceiver(int fd, int events, void* data) {
     return queue->eventReceiver(fd, events);
 }
 
-int MessageQueue::eventReceiver(int fd, int events) {
+int MessageQueue::eventReceiver(int /*fd*/, int /*events*/) {
     ssize_t n;
     DisplayEventReceiver::Event buffer[8];
     while ((n = DisplayEventReceiver::getEvents(mEventTube, buffer, 8)) > 0) {
         for (int i=0 ; i<n ; i++) {
             if (buffer[i].header.type == DisplayEventReceiver::DISPLAY_EVENT_VSYNC) {
-                mHandler->signalRefresh();
+#if INVALIDATE_ON_VSYNC
+                mHandler->dispatchInvalidate();
+#else
+                mHandler->dispatchRefresh();
+#endif
                 break;
             }
         }

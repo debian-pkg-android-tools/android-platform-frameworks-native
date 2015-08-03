@@ -27,19 +27,33 @@
 #include <utils/threads.h>
 #include <utils/SortedVector.h>
 
-#include "DisplayHardware/DisplayHardware.h"
+#include "DisplayDevice.h"
+#include "DisplayHardware/PowerHAL.h"
 
 // ---------------------------------------------------------------------------
-
 namespace android {
-
 // ---------------------------------------------------------------------------
 
 class SurfaceFlinger;
+class String8;
 
 // ---------------------------------------------------------------------------
 
-class EventThread : public Thread, public DisplayHardware::VSyncHandler {
+
+class VSyncSource : public virtual RefBase {
+public:
+    class Callback: public virtual RefBase {
+    public:
+        virtual ~Callback() {}
+        virtual void onVSyncEvent(nsecs_t when) = 0;
+    };
+
+    virtual ~VSyncSource() {}
+    virtual void setVSyncEnabled(bool enable) = 0;
+    virtual void setCallback(const sp<Callback>& callback) = 0;
+};
+
+class EventThread : public Thread, private VSyncSource::Callback {
     class Connection : public BnDisplayEventConnection {
     public:
         Connection(const sp<EventThread>& eventThread);
@@ -48,7 +62,6 @@ class EventThread : public Thread, public DisplayHardware::VSyncHandler {
         // count >= 1 : continuous event. count is the vsync rate
         // count == 0 : one-shot event that has not fired
         // count ==-1 : one-shot event that fired this round / disabled
-        // count ==-2 : one-shot event that fired the round before
         int32_t count;
 
     private:
@@ -63,11 +76,10 @@ class EventThread : public Thread, public DisplayHardware::VSyncHandler {
 
 public:
 
-    EventThread(const sp<SurfaceFlinger>& flinger);
+    EventThread(const sp<VSyncSource>& src);
 
     sp<Connection> createEventConnection() const;
     status_t registerDisplayEventConnection(const sp<Connection>& connection);
-    status_t unregisterDisplayEventConnection(const wp<Connection>& connection);
 
     void setVsyncRate(uint32_t count, const sp<Connection>& connection);
     void requestNextVsync(const sp<Connection>& connection);
@@ -78,36 +90,45 @@ public:
     // called after the screen is turned on from main thread
     void onScreenAcquired();
 
-    void dump(String8& result, char* buffer, size_t SIZE) const;
+    // called when receiving a hotplug event
+    void onHotplugReceived(int type, bool connected);
+
+    Vector< sp<EventThread::Connection> > waitForEvent(
+            DisplayEventReceiver::Event* event);
+
+    void dump(String8& result) const;
+    void sendVsyncHintOff();
 
 private:
     virtual bool        threadLoop();
-    virtual status_t    readyToRun();
     virtual void        onFirstRef();
-    virtual void        onVSyncReceived(int, nsecs_t timestamp);
+
+    virtual void onVSyncEvent(nsecs_t timestamp);
 
     void removeDisplayEventConnection(const wp<Connection>& connection);
     void enableVSyncLocked();
     void disableVSyncLocked();
+    void sendVsyncHintOnLocked();
 
     // constants
-    sp<SurfaceFlinger> mFlinger;
-    DisplayHardware& mHw;
+    sp<VSyncSource> mVSyncSource;
+    PowerHAL mPowerHAL;
 
     mutable Mutex mLock;
     mutable Condition mCondition;
 
     // protected by mLock
     SortedVector< wp<Connection> > mDisplayEventConnections;
-    nsecs_t mLastVSyncTimestamp;
-    nsecs_t mVSyncTimestamp;
+    Vector< DisplayEventReceiver::Event > mPendingEvents;
+    DisplayEventReceiver::Event mVSyncEvent[DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES];
     bool mUseSoftwareVSync;
-
-    // main thread only
-    size_t mDeliveredEvents;
+    bool mVsyncEnabled;
 
     // for debugging
     bool mDebugVsyncEnabled;
+
+    bool mVsyncHintSent;
+    timer_t mTimerId;
 };
 
 // ---------------------------------------------------------------------------

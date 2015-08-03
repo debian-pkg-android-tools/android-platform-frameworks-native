@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
@@ -35,12 +36,13 @@ namespace android {
 // ----------------------------------------------------------------------------
 
 SensorEventQueue::SensorEventQueue(const sp<ISensorEventConnection>& connection)
-    : mSensorEventConnection(connection)
-{
+    : mSensorEventConnection(connection), mRecBuffer(NULL), mAvailable(0), mConsumed(0),
+      mNumAcksToSend(0) {
+    mRecBuffer = new ASensorEvent[MAX_RECEIVE_BUFFER_EVENT_COUNT];
 }
 
-SensorEventQueue::~SensorEventQueue()
-{
+SensorEventQueue::~SensorEventQueue() {
+    delete [] mRecBuffer;
 }
 
 void SensorEventQueue::onFirstRef()
@@ -59,9 +61,21 @@ ssize_t SensorEventQueue::write(const sp<BitTube>& tube,
     return BitTube::sendObjects(tube, events, numEvents);
 }
 
-ssize_t SensorEventQueue::read(ASensorEvent* events, size_t numEvents)
-{
-    return BitTube::recvObjects(mSensorChannel, events, numEvents);
+ssize_t SensorEventQueue::read(ASensorEvent* events, size_t numEvents) {
+    if (mAvailable == 0) {
+        ssize_t err = BitTube::recvObjects(mSensorChannel,
+                mRecBuffer, MAX_RECEIVE_BUFFER_EVENT_COUNT);
+        if (err < 0) {
+            return err;
+        }
+        mAvailable = err;
+        mConsumed = 0;
+    }
+    size_t count = numEvents < mAvailable ? numEvents : mAvailable;
+    memcpy(events, mRecBuffer + mConsumed, count*sizeof(ASensorEvent));
+    mAvailable -= count;
+    mConsumed += count;
+    return count;
 }
 
 sp<Looper> SensorEventQueue::getLooper() const
@@ -107,27 +121,48 @@ status_t SensorEventQueue::wake() const
 }
 
 status_t SensorEventQueue::enableSensor(Sensor const* sensor) const {
-    return mSensorEventConnection->enableDisable(sensor->getHandle(), true);
+    return mSensorEventConnection->enableDisable(sensor->getHandle(), true, 0, 0, false);
 }
 
 status_t SensorEventQueue::disableSensor(Sensor const* sensor) const {
-    return mSensorEventConnection->enableDisable(sensor->getHandle(), false);
+    return mSensorEventConnection->enableDisable(sensor->getHandle(), false, 0, 0, false);
 }
 
-status_t SensorEventQueue::enableSensor(int32_t handle, int32_t us) const {
-    status_t err = mSensorEventConnection->enableDisable(handle, true);
-    if (err == NO_ERROR) {
-        mSensorEventConnection->setEventRate(handle, us2ns(us));
-    }
-    return err;
+status_t SensorEventQueue::enableSensor(int32_t handle, int32_t samplingPeriodUs,
+                                        int maxBatchReportLatencyUs, int reservedFlags) const {
+    return mSensorEventConnection->enableDisable(handle, true, us2ns(samplingPeriodUs),
+                                                 us2ns(maxBatchReportLatencyUs), reservedFlags);
+}
+
+status_t SensorEventQueue::flush() const {
+    return mSensorEventConnection->flush();
 }
 
 status_t SensorEventQueue::disableSensor(int32_t handle) const {
-    return mSensorEventConnection->enableDisable(handle, false);
+    return mSensorEventConnection->enableDisable(handle, false, 0, 0, false);
 }
 
 status_t SensorEventQueue::setEventRate(Sensor const* sensor, nsecs_t ns) const {
     return mSensorEventConnection->setEventRate(sensor->getHandle(), ns);
+}
+
+void SensorEventQueue::sendAck(const ASensorEvent* events, int count) {
+    for (int i = 0; i < count; ++i) {
+        if (events[i].flags & WAKE_UP_SENSOR_EVENT_NEEDS_ACK) {
+            ++mNumAcksToSend;
+        }
+    }
+    // Send mNumAcksToSend to acknowledge for the wake up sensor events received.
+    if (mNumAcksToSend > 0) {
+        ssize_t size = ::send(mSensorChannel->getFd(), &mNumAcksToSend, sizeof(mNumAcksToSend),
+                MSG_DONTWAIT | MSG_NOSIGNAL);
+        if (size < 0) {
+            ALOGE("sendAck failure %d %d", size, mNumAcksToSend);
+        } else {
+            mNumAcksToSend = 0;
+        }
+    }
+    return;
 }
 
 // ----------------------------------------------------------------------------

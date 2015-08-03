@@ -24,6 +24,7 @@
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
 #include <utils/Flattenable.h>
+#include <utils/RefBase.h>
 
 
 struct ANativeWindowBuffer;
@@ -37,11 +38,10 @@ class GraphicBufferMapper;
 // ===========================================================================
 
 class GraphicBuffer
-    : public ANativeObjectBase<
-        ANativeWindowBuffer,
-        GraphicBuffer, 
-        LightRefBase<GraphicBuffer> >, public Flattenable
+    : public ANativeObjectBase< ANativeWindowBuffer, GraphicBuffer, RefBase >,
+      public Flattenable<GraphicBuffer>
 {
+    friend class Flattenable<GraphicBuffer>;
 public:
 
     enum {
@@ -64,7 +64,9 @@ public:
         USAGE_HW_2D             = GRALLOC_USAGE_HW_2D,
         USAGE_HW_COMPOSER       = GRALLOC_USAGE_HW_COMPOSER,
         USAGE_HW_VIDEO_ENCODER  = GRALLOC_USAGE_HW_VIDEO_ENCODER,
-        USAGE_HW_MASK           = GRALLOC_USAGE_HW_MASK
+        USAGE_HW_MASK           = GRALLOC_USAGE_HW_MASK,
+
+        USAGE_CURSOR            = GRALLOC_USAGE_CURSOR,
     };
 
     GraphicBuffer();
@@ -88,23 +90,35 @@ public:
     uint32_t getUsage() const           { return usage; }
     PixelFormat getPixelFormat() const  { return format; }
     Rect getBounds() const              { return Rect(width, height); }
-    
+    uint64_t getId() const              { return mId; }
+
     status_t reallocate(uint32_t w, uint32_t h, PixelFormat f, uint32_t usage);
 
     status_t lock(uint32_t usage, void** vaddr);
     status_t lock(uint32_t usage, const Rect& rect, void** vaddr);
+    // For HAL_PIXEL_FORMAT_YCbCr_420_888
+    status_t lockYCbCr(uint32_t usage, android_ycbcr *ycbcr);
+    status_t lockYCbCr(uint32_t usage, const Rect& rect, android_ycbcr *ycbcr);
     status_t unlock();
+    status_t lockAsync(uint32_t usage, void** vaddr, int fenceFd);
+    status_t lockAsync(uint32_t usage, const Rect& rect, void** vaddr, int fenceFd);
+    status_t lockAsyncYCbCr(uint32_t usage, android_ycbcr *ycbcr, int fenceFd);
+    status_t lockAsyncYCbCr(uint32_t usage, const Rect& rect, android_ycbcr *ycbcr, int fenceFd);
+    status_t unlockAsync(int *fenceFd);
 
     ANativeWindowBuffer* getNativeBuffer() const;
-    
-    void setIndex(int index);
-    int getIndex() const;
 
     // for debugging
     static void dumpAllocationsToSystemLog();
 
+    // Flattenable protocol
+    size_t getFlattenedSize() const;
+    size_t getFdCount() const;
+    status_t flatten(void*& buffer, size_t& size, int*& fds, size_t& count) const;
+    status_t unflatten(void const*& buffer, size_t& size, int const*& fds, size_t& count);
+
 private:
-    virtual ~GraphicBuffer();
+    ~GraphicBuffer();
 
     enum {
         ownNone   = 0,
@@ -124,7 +138,6 @@ private:
     friend class Surface;
     friend class BpSurface;
     friend class BnSurface;
-    friend class SurfaceTextureClient;
     friend class LightRefBase<GraphicBuffer>;
     GraphicBuffer(const GraphicBuffer& rhs);
     GraphicBuffer& operator = (const GraphicBuffer& rhs);
@@ -135,22 +148,14 @@ private:
 
     void free_handle();
 
-    // Flattenable interface
-    size_t getFlattenedSize() const;
-    size_t getFdCount() const;
-    status_t flatten(void* buffer, size_t size,
-            int fds[], size_t count) const;
-    status_t unflatten(void const* buffer, size_t size,
-            int fds[], size_t count);
-
-
     GraphicBufferMapper& mBufferMapper;
     ssize_t mInitCheck;
-    int mIndex;
 
     // If we're wrapping another buffer then this reference will make sure it
     // doesn't get freed.
     sp<ANativeWindowBuffer> mWrappedBuffer;
+
+    uint64_t mId;
 };
 
 }; // namespace android

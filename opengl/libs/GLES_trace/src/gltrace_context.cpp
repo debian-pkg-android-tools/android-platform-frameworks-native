@@ -32,7 +32,7 @@ static pthread_key_t sTLSKey = -1;
 static pthread_once_t sPthreadOnceKey = PTHREAD_ONCE_INIT;
 
 void createTLSKey() {
-    pthread_key_create(&sTLSKey, NULL);
+    pthread_key_create(&sTLSKey, (void (*)(void*))&releaseContext);
 }
 
 GLTraceContext *getGLTraceContext() {
@@ -119,7 +119,7 @@ GLTraceContext *GLTraceState::createTraceContext(int version, EGLContext eglCont
 
     const size_t DEFAULT_BUFFER_SIZE = 8192;
     BufferedOutputStream *stream = new BufferedOutputStream(mStream, DEFAULT_BUFFER_SIZE);
-    GLTraceContext *traceContext = new GLTraceContext(id, this, stream);
+    GLTraceContext *traceContext = new GLTraceContext(id, version, this, stream);
     mPerContextState[eglContext] = traceContext;
 
     return traceContext;
@@ -129,8 +129,13 @@ GLTraceContext *GLTraceState::getTraceContext(EGLContext c) {
     return mPerContextState[c];
 }
 
-GLTraceContext::GLTraceContext(int id, GLTraceState *state, BufferedOutputStream *stream) :
+GLTraceContext::GLTraceContext(int id, int version, GLTraceState *state,
+        BufferedOutputStream *stream) :
     mId(id),
+    mVersion(version),
+    mVersionMajor(0),
+    mVersionMinor(0),
+    mVersionParsed(false),
     mState(state),
     mBufferedOutputStream(stream),
     mElementArrayBuffers(DefaultKeyedVector<GLuint, ElementArrayBuffer*>(NULL))
@@ -143,8 +148,42 @@ int GLTraceContext::getId() {
     return mId;
 }
 
+int GLTraceContext::getVersion() {
+    return mVersion;
+}
+
+int GLTraceContext::getVersionMajor() {
+    if (!mVersionParsed) {
+        parseGlesVersion();
+        mVersionParsed = true;
+    }
+    return mVersionMajor;
+}
+
+int GLTraceContext::getVersionMinor() {
+    if (!mVersionParsed) {
+        parseGlesVersion();
+        mVersionParsed = true;
+    }
+    return mVersionMinor;
+}
+
 GLTraceState *GLTraceContext::getGlobalTraceState() {
     return mState;
+}
+
+void GLTraceContext::parseGlesVersion() {
+    const char* str = (const char*)hooks->gl.glGetString(GL_VERSION);
+    int major, minor;
+    if (sscanf(str, "OpenGL ES-CM %d.%d", &major, &minor) != 2) {
+        if (sscanf(str, "OpenGL ES %d.%d", &major, &minor) != 2) {
+            ALOGW("Unable to parse GL_VERSION string: \"%s\"", str);
+            major = 1;
+            minor = 0;
+        }
+    }
+    mVersionMajor = major;
+    mVersionMinor = minor;
 }
 
 void GLTraceContext::resizeFBMemory(unsigned minSize) {
@@ -203,6 +242,8 @@ void GLTraceContext::traceGLMessage(GLMessage *msg) {
 
     GLMessage_Function func = msg->function();
     if (func == GLMessage::eglSwapBuffers
+        || func == GLMessage::eglCreateContext
+        || func == GLMessage::eglMakeCurrent
         || func == GLMessage::glDrawArrays
         || func == GLMessage::glDrawElements) {
         mBufferedOutputStream->flush();

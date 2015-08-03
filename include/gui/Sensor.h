@@ -41,7 +41,7 @@ class Parcel;
 
 // ----------------------------------------------------------------------------
 
-class Sensor : public ASensor, public Flattenable
+class Sensor : public ASensor, public LightFlattenable<Sensor>
 {
 public:
     enum {
@@ -53,8 +53,8 @@ public:
     };
 
             Sensor();
-            Sensor(struct sensor_t const* hwSensor);
-    virtual ~Sensor();
+            Sensor(struct sensor_t const* hwSensor, int halVersion = 0);
+            ~Sensor();
 
     const String8& getName() const;
     const String8& getVendor() const;
@@ -67,14 +67,20 @@ public:
     int32_t getMinDelay() const;
     nsecs_t getMinDelayNs() const;
     int32_t getVersion() const;
+    int32_t getFifoReservedEventCount() const;
+    int32_t getFifoMaxEventCount() const;
+    const String8& getStringType() const;
+    const String8& getRequiredPermission() const;
+    int32_t getMaxDelay() const;
+    int32_t getFlags() const;
+    bool isWakeUpSensor() const;
+    int32_t getReportingMode() const;
 
-    // Flattenable interface
-    virtual size_t getFlattenedSize() const;
-    virtual size_t getFdCount() const;
-    virtual status_t flatten(void* buffer, size_t size,
-            int fds[], size_t count) const;
-    virtual status_t unflatten(void const* buffer, size_t size,
-            int fds[], size_t count);
+    // LightFlattenable protocol
+    inline bool isFixedSize() const { return false; }
+    size_t getFlattenedSize() const;
+    status_t flatten(void* buffer, size_t size) const;
+    status_t unflatten(void const* buffer, size_t size);
 
 private:
     String8 mName;
@@ -87,6 +93,14 @@ private:
     float   mPower;
     int32_t mMinDelay;
     int32_t mVersion;
+    int32_t mFifoReservedEventCount;
+    int32_t mFifoMaxEventCount;
+    String8 mStringType;
+    String8 mRequiredPermission;
+    int32_t mMaxDelay;
+    int32_t mFlags;
+    static void flattenString8(void*& buffer, size_t& size, const String8& string8);
+    static bool unflattenString8(void const*& buffer, size_t& size, String8& outputString8);
 };
 
 // ----------------------------------------------------------------------------
