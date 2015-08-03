@@ -19,12 +19,20 @@
 
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 #define SU_PATH "/system/xbin/su"
 
+typedef void (for_each_pid_func)(int, const char *);
+typedef void (for_each_tid_func)(int, int, const char *);
+typedef void (for_each_userid_func)(int);
+
 /* prints the contents of a file */
-int dump_file(const char *title, const char* path);
+int dump_file(const char *title, const char *path);
+
+/* prints the contents of the fd */
+int dump_file_from_fd(const char *title, const char *path, int fd);
 
 /* forks a command and waits for it to finish -- terminate args with NULL */
 int run_command(const char *title, int timeout_seconds, const char *command, ...);
@@ -42,10 +50,16 @@ pid_t redirect_to_file(FILE *redirect, char *path, int gzip_level);
 const char *dump_traces();
 
 /* for each process in the system, run the specified function */
-void for_each_pid(void (*func)(int, const char *), const char *header);
+void for_each_pid(for_each_pid_func func, const char *header);
+
+/* for each thread in the system, run the specified function */
+void for_each_tid(for_each_tid_func func, const char *header);
+
+/* for each user id in the system, run the specified function */
+void for_each_userid(for_each_userid_func func, const char *header);
 
 /* Displays a blocked processes in-kernel wait channel */
-void show_wchan(int pid, const char *name);
+void show_wchan(int pid, int tid, const char *name);
 
 /* Runs "showmap" for a process */
 void do_showmap(int pid, const char *name);
@@ -53,8 +67,14 @@ void do_showmap(int pid, const char *name);
 /* Gets the dmesg output for the kernel */
 void do_dmesg();
 
+/* Dumps settings for a given user id */
+void do_dump_settings(int userid);
+
+/* Prints the contents of all the routing tables, both IPv4 and IPv6. */
+void dump_route_tables();
+
 /* Play a sound via Stagefright */
-void play_sound(const char* path);
+void play_sound(const char *path);
 
 /* Implemented by libdumpstate_board to dump board-specific info */
 void dumpstate_board();

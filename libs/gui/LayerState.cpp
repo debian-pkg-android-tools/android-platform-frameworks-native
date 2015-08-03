@@ -17,45 +17,52 @@
 #include <utils/Errors.h>
 #include <binder/Parcel.h>
 #include <gui/ISurfaceComposerClient.h>
+#include <gui/IGraphicBufferProducer.h>
 #include <private/gui/LayerState.h>
 
 namespace android {
 
 status_t layer_state_t::write(Parcel& output) const
 {
-    status_t err;
-
-    size_t len = transparentRegion.write(NULL, 0);
-    err = output.writeInt32(len);
-    if (err < NO_ERROR) return err;
-
-    void* buf = output.writeInplace(len);
-    if (buf == NULL) return NO_MEMORY;
-
-    err = transparentRegion.write(buf, len);
-    if (err < NO_ERROR) return err;
-
-    // NOTE: regions are at the end of the structure
-    size_t size = sizeof(layer_state_t);
-    size -= sizeof(transparentRegion);
-    err = output.write(this, size);
-    return err;
+    output.writeStrongBinder(surface);
+    output.writeInt32(what);
+    output.writeFloat(x);
+    output.writeFloat(y);
+    output.writeInt32(z);
+    output.writeInt32(w);
+    output.writeInt32(h);
+    output.writeInt32(layerStack);
+    output.writeFloat(alpha);
+    output.writeInt32(flags);
+    output.writeInt32(mask);
+    *reinterpret_cast<layer_state_t::matrix22_t *>(
+            output.writeInplace(sizeof(layer_state_t::matrix22_t))) = matrix;
+    output.write(crop);
+    output.write(transparentRegion);
+    return NO_ERROR;
 }
 
 status_t layer_state_t::read(const Parcel& input)
 {
-    status_t err;
-    size_t len = input.readInt32();
-    void const* buf = input.readInplace(len);
-    if (buf == NULL) return NO_MEMORY;
-
-    err = transparentRegion.read(buf);
-    if (err < NO_ERROR) return err;
-
-    // NOTE: regions are at the end of the structure
-    size_t size = sizeof(layer_state_t);
-    size -= sizeof(transparentRegion);
-    input.read(this, size);
+    surface = input.readStrongBinder();
+    what = input.readInt32();
+    x = input.readFloat();
+    y = input.readFloat();
+    z = input.readInt32();
+    w = input.readInt32();
+    h = input.readInt32();
+    layerStack = input.readInt32();
+    alpha = input.readFloat();
+    flags = input.readInt32();
+    mask = input.readInt32();
+    const void* matrix_data = input.readInplace(sizeof(layer_state_t::matrix22_t));
+    if (matrix_data) {
+        matrix = *reinterpret_cast<layer_state_t::matrix22_t const *>(matrix_data);
+    } else {
+        return BAD_VALUE;
+    }
+    input.read(crop);
+    input.read(transparentRegion);
     return NO_ERROR;
 }
 
@@ -68,5 +75,33 @@ status_t ComposerState::read(const Parcel& input) {
     client = interface_cast<ISurfaceComposerClient>(input.readStrongBinder());
     return state.read(input);
 }
+
+
+status_t DisplayState::write(Parcel& output) const {
+    output.writeStrongBinder(token);
+    output.writeStrongBinder(surface->asBinder());
+    output.writeInt32(what);
+    output.writeInt32(layerStack);
+    output.writeInt32(orientation);
+    output.write(viewport);
+    output.write(frame);
+    output.writeInt32(width);
+    output.writeInt32(height);
+    return NO_ERROR;
+}
+
+status_t DisplayState::read(const Parcel& input) {
+    token = input.readStrongBinder();
+    surface = interface_cast<IGraphicBufferProducer>(input.readStrongBinder());
+    what = input.readInt32();
+    layerStack = input.readInt32();
+    orientation = input.readInt32();
+    input.read(viewport);
+    input.read(frame);
+    width = input.readInt32();
+    height = input.readInt32();
+    return NO_ERROR;
+}
+
 
 }; // namespace android

@@ -1,16 +1,16 @@
-/* 
+/*
  ** Copyright 2007, The Android Open Source Project
  **
- ** Licensed under the Apache License, Version 2.0 (the "License"); 
- ** you may not use this file except in compliance with the License. 
- ** You may obtain a copy of the License at 
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
  **
- **     http://www.apache.org/licenses/LICENSE-2.0 
+ **     http://www.apache.org/licenses/LICENSE-2.0
  **
- ** Unless required by applicable law or agreed to in writing, software 
- ** distributed under the License is distributed on an "AS IS" BASIS, 
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- ** See the License for the specific language governing permissions and 
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
  ** limitations under the License.
  */
 
@@ -23,26 +23,25 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <GLES/gl.h>
-#include <GLES/glext.h>
 
 #include <cutils/log.h>
 #include <cutils/atomic.h>
 #include <cutils/properties.h>
-#include <cutils/memory.h>
 
 #include <utils/CallStack.h>
 #include <utils/String8.h>
 
-#include "egldefs.h"
-#include "egl_impl.h"
+#include "../egl_impl.h"
+#include "../glestrace.h"
+
 #include "egl_tls.h"
-#include "glestrace.h"
-#include "hooks.h"
+#include "egldefs.h"
 #include "Loader.h"
 
 #include "egl_display.h"
 #include "egl_object.h"
+
+typedef __eglMustCastToProperFunctionPointerType EGLFuncPointer;
 
 // ----------------------------------------------------------------------------
 namespace android {
@@ -62,12 +61,18 @@ EGLAPI pthread_key_t gGLTraceKey = -1;
 // ----------------------------------------------------------------------------
 
 /**
- * There are two different tracing methods:
- * 1. libs/EGL/trace.cpp: Traces all functions to logcat.
+ * There are three different tracing methods:
+ * 1. libs/EGL/trace.cpp: Traces all functions to systrace.
+ *    To enable:
+ *      - set system property "debug.egl.trace" to "systrace" to trace all apps.
+ * 2. libs/EGL/trace.cpp: Logs a stack trace for GL errors after each function call.
+ *    To enable:
+ *      - set system property "debug.egl.trace" to "error" to trace all apps.
+ * 3. libs/EGL/trace.cpp: Traces all functions to logcat.
  *    To enable:
  *      - set system property "debug.egl.trace" to 1 to trace all apps.
  *      - or call setGLTraceLevel(1) from an app to enable tracing for that app.
- * 2. libs/GLES_trace: Traces all functions via protobuf to host.
+ * 4. libs/GLES_trace: Traces all functions via protobuf to host.
  *    To enable:
  *        - set system property "debug.egl.debug_proc" to the application name.
  *      - or call setGLDebugLevel(1) from the app.
@@ -75,10 +80,22 @@ EGLAPI pthread_key_t gGLTraceKey = -1;
 static int sEGLTraceLevel;
 static int sEGLApplicationTraceLevel;
 
-int gEGLDebugLevel;
-static int sEGLApplicationDebugLevel;
+static bool sEGLSystraceEnabled;
+static bool sEGLGetErrorEnabled;
+
+static volatile int sEGLDebugLevel;
 
 extern gl_hooks_t gHooksTrace;
+extern gl_hooks_t gHooksSystrace;
+extern gl_hooks_t gHooksErrorTrace;
+
+int getEGLDebugLevel() {
+    return sEGLDebugLevel;
+}
+
+void setEGLDebugLevel(int level) {
+    sEGLDebugLevel = level;
+}
 
 static inline void setGlTraceThreadSpecific(gl_hooks_t const *value) {
     pthread_setspecific(gGLTraceKey, value);
@@ -91,47 +108,74 @@ gl_hooks_t const* getGLTraceThreadSpecific() {
 void initEglTraceLevel() {
     char value[PROPERTY_VALUE_MAX];
     property_get("debug.egl.trace", value, "0");
+
+    sEGLGetErrorEnabled = !strcasecmp(value, "error");
+    if (sEGLGetErrorEnabled) {
+        sEGLSystraceEnabled = false;
+        sEGLTraceLevel = 0;
+        return;
+    }
+
+    sEGLSystraceEnabled = !strcasecmp(value, "systrace");
+    if (sEGLSystraceEnabled) {
+        sEGLTraceLevel = 0;
+        return;
+    }
+
     int propertyLevel = atoi(value);
     int applicationLevel = sEGLApplicationTraceLevel;
     sEGLTraceLevel = propertyLevel > applicationLevel ? propertyLevel : applicationLevel;
 }
 
 void initEglDebugLevel() {
-    int propertyLevel = 0;
-    char value[PROPERTY_VALUE_MAX];
-    property_get("debug.egl.debug_proc", value, "");
-    if (strlen(value) > 0) {
-        long pid = getpid();
-        char procPath[128] = {};
-        sprintf(procPath, "/proc/%ld/cmdline", pid);
-        FILE * file = fopen(procPath, "r");
-        if (file) {
-            char cmdline[256] = {};
-            if (fgets(cmdline, sizeof(cmdline) - 1, file)) {
-                if (!strncmp(value, cmdline, strlen(value))) {
-                    // set EGL debug if the "debug.egl.debug_proc" property
-                    // matches the prefix of this application's command line
-                    propertyLevel = 1;
+    if (getEGLDebugLevel() == 0) {
+        char value[PROPERTY_VALUE_MAX];
+
+        // check system property only on userdebug or eng builds
+        property_get("ro.debuggable", value, "0");
+        if (value[0] == '0')
+            return;
+
+        property_get("debug.egl.debug_proc", value, "");
+        if (strlen(value) > 0) {
+            FILE * file = fopen("/proc/self/cmdline", "r");
+            if (file) {
+                char cmdline[256];
+                if (fgets(cmdline, sizeof(cmdline), file)) {
+                    if (!strncmp(value, cmdline, strlen(value))) {
+                        // set EGL debug if the "debug.egl.debug_proc" property
+                        // matches the prefix of this application's command line
+                        setEGLDebugLevel(1);
+                    }
                 }
+                fclose(file);
             }
-            fclose(file);
         }
     }
 
-    gEGLDebugLevel = propertyLevel || sEGLApplicationDebugLevel;
-    if (gEGLDebugLevel > 0) {
-        GLTrace_start();
+    if (getEGLDebugLevel() > 0) {
+        if (GLTrace_start() < 0) {
+            ALOGE("Error starting Tracer for OpenGL ES. Disabling..");
+            setEGLDebugLevel(0);
+        }
     }
 }
 
 void setGLHooksThreadSpecific(gl_hooks_t const *value) {
-    if (sEGLTraceLevel > 0) {
+    if (sEGLGetErrorEnabled) {
+        setGlTraceThreadSpecific(value);
+        setGlThreadSpecific(&gHooksErrorTrace);
+    } else if (sEGLSystraceEnabled) {
+        setGlTraceThreadSpecific(value);
+        setGlThreadSpecific(&gHooksSystrace);
+    } else if (sEGLTraceLevel > 0) {
         setGlTraceThreadSpecific(value);
         setGlThreadSpecific(&gHooksTrace);
-    } else if (gEGLDebugLevel > 0 && value != &gHooksNoContext) {
+    } else if (getEGLDebugLevel() > 0 && value != &gHooksNoContext) {
         setGlTraceThreadSpecific(value);
         setGlThreadSpecific(GLTrace_getGLHooks());
     } else {
+        setGlTraceThreadSpecific(NULL);
         setGlThreadSpecific(value);
     }
 }
@@ -149,9 +193,12 @@ void setGLTraceLevel(int level) {
  * Global entry point to allow applications to modify their own debug level.
  * Debugging is enabled if either the application requested it, or if the system property
  * matches the application's name.
+ * Note that this only sets the debug level. The value is read and used either in
+ * initEglDebugLevel() if the application hasn't initialized its display yet, or when
+ * eglSwapBuffers() is called next.
  */
 void EGLAPI setGLDebugLevel(int level) {
-    sEGLApplicationDebugLevel = level;
+    setEGLDebugLevel(level);
 }
 
 #else
@@ -166,34 +213,33 @@ void setGLHooksThreadSpecific(gl_hooks_t const *value) {
 
 static int gl_no_context() {
     if (egl_tls_t::logNoContextCall()) {
-        ALOGE("call to OpenGL ES API with no current context "
-             "(logged once per thread)");
+        char const* const error = "call to OpenGL ES API with "
+                "no current context (logged once per thread)";
+        if (LOG_NDEBUG) {
+            ALOGE(error);
+        } else {
+            LOG_ALWAYS_FATAL(error);
+        }
         char value[PROPERTY_VALUE_MAX];
         property_get("debug.egl.callstack", value, "0");
         if (atoi(value)) {
-            CallStack stack;
-            stack.update();
-            stack.dump();
+            CallStack stack(LOG_TAG);
         }
     }
     return 0;
 }
 
-static void early_egl_init(void) 
+static void early_egl_init(void)
 {
-#if !USE_FAST_TLS_KEY
-    pthread_key_create(&gGLWrapperKey, NULL);
-#endif
 #if EGL_TRACE
     pthread_key_create(&gGLTraceKey, NULL);
     initEglTraceLevel();
-    initEglDebugLevel();
 #endif
-    uint32_t addr = (uint32_t)((void*)gl_no_context);
-    android_memset32(
-            (uint32_t*)(void*)&gHooksNoContext, 
-            addr, 
-            sizeof(gHooksNoContext));
+    int numHooks = sizeof(gHooksNoContext) / sizeof(EGLFuncPointer);
+    EGLFuncPointer *iter = reinterpret_cast<EGLFuncPointer*>(&gHooksNoContext);
+    for (int hook = 0; hook < numHooks; ++hook) {
+        *(iter++) = reinterpret_cast<EGLFuncPointer>(gl_no_context);
+    }
 
     setGLHooksThreadSpecific(&gHooksNoContext);
 }
@@ -284,8 +330,27 @@ EGLBoolean egl_init_drivers() {
     return res;
 }
 
+static pthread_mutex_t sLogPrintMutex = PTHREAD_MUTEX_INITIALIZER;
+static nsecs_t sLogPrintTime = 0;
+#define NSECS_DURATION 1000000000
+
 void gl_unimplemented() {
-    ALOGE("called unimplemented OpenGL ES API");
+    bool printLog = false;
+    nsecs_t now = systemTime();
+    pthread_mutex_lock(&sLogPrintMutex);
+    if ((now - sLogPrintTime) > NSECS_DURATION) {
+        sLogPrintTime = now;
+        printLog = true;
+    }
+    pthread_mutex_unlock(&sLogPrintMutex);
+    if (printLog) {
+        ALOGE("called unimplemented OpenGL ES API");
+        char value[PROPERTY_VALUE_MAX];
+        property_get("debug.egl.callstack", value, "0");
+        if (atoi(value)) {
+            CallStack stack(LOG_TAG);
+        }
+    }
 }
 
 void gl_noop() {
@@ -293,41 +358,10 @@ void gl_noop() {
 
 // ----------------------------------------------------------------------------
 
-#if USE_FAST_TLS_KEY
-
-// We have a dedicated TLS slot in bionic
-static inline gl_hooks_t const * volatile * get_tls_hooks() {
-    volatile void *tls_base = __get_tls();
-    gl_hooks_t const * volatile * tls_hooks =
-            reinterpret_cast<gl_hooks_t const * volatile *>(tls_base);
-    return tls_hooks;
-}
-
 void setGlThreadSpecific(gl_hooks_t const *value) {
     gl_hooks_t const * volatile * tls_hooks = get_tls_hooks();
     tls_hooks[TLS_SLOT_OPENGL_API] = value;
 }
-
-gl_hooks_t const* getGlThreadSpecific() {
-    gl_hooks_t const * volatile * tls_hooks = get_tls_hooks();
-    gl_hooks_t const* hooks = tls_hooks[TLS_SLOT_OPENGL_API];
-    if (hooks) return hooks;
-    return &gHooksNoContext;
-}
-
-#else
-
-void setGlThreadSpecific(gl_hooks_t const *value) {
-    pthread_setspecific(gGLWrapperKey, value);
-}
-
-gl_hooks_t const* getGlThreadSpecific() {
-    gl_hooks_t const* hooks =  static_cast<gl_hooks_t*>(pthread_getspecific(gGLWrapperKey));
-    if (hooks) return hooks;
-    return &gHooksNoContext;
-}
-
-#endif
 
 // ----------------------------------------------------------------------------
 // GL / EGL hooks
@@ -339,7 +373,7 @@ gl_hooks_t const* getGlThreadSpecific() {
 #define EGL_ENTRY(_r, _api, ...) #_api,
 
 char const * const gl_names[] = {
-    #include "entries.in"
+    #include "../entries.in"
     NULL
 };
 

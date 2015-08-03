@@ -1,16 +1,16 @@
-/* 
+/*
  ** Copyright 2007, The Android Open Source Project
  **
- ** Licensed under the Apache License, Version 2.0 (the "License"); 
- ** you may not use this file except in compliance with the License. 
- ** You may obtain a copy of the License at 
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
  **
- **     http://www.apache.org/licenses/LICENSE-2.0 
+ **     http://www.apache.org/licenses/LICENSE-2.0
  **
- ** Unless required by applicable law or agreed to in writing, software 
- ** distributed under the License is distributed on an "AS IS" BASIS, 
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- ** See the License for the specific language governing permissions and 
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
  ** limitations under the License.
  */
 
@@ -18,11 +18,12 @@
 
 #include <string.h>
 
+#include "../egl_impl.h"
+
 #include "egl_cache.h"
 #include "egl_display.h"
 #include "egl_object.h"
 #include "egl_tls.h"
-#include "egl_impl.h"
 #include "Loader.h"
 #include <cutils/properties.h>
 
@@ -34,32 +35,8 @@ static char const * const sVendorString     = "Android";
 static char const * const sVersionString    = "1.4 Android META-EGL";
 static char const * const sClientApiString  = "OpenGL_ES";
 
-// this is the list of EGL extensions that are exposed to applications
-// some of them are mandatory because used by the ANDROID system.
-//
-// mandatory extensions are required per the CDD and not explicitly
-// checked during EGL initialization. the system *assumes* these extensions
-// are present. the system may not function properly if some mandatory
-// extensions are missing.
-//
-// NOTE: sExtensionString MUST be have a single space as the last character.
-//
-static char const * const sExtensionString  =
-        "EGL_KHR_image "                        // mandatory
-        "EGL_KHR_image_base "                   // mandatory
-        "EGL_KHR_image_pixmap "
-        "EGL_KHR_gl_texture_2D_image "
-        "EGL_KHR_gl_texture_cubemap_image "
-        "EGL_KHR_gl_renderbuffer_image "
-        "EGL_KHR_fence_sync "
-        "EGL_NV_system_time "
-        "EGL_ANDROID_image_native_buffer "      // mandatory
-        ;
-
-// extensions not exposed to applications but used by the ANDROID system
-//      "EGL_ANDROID_recordable "               // mandatory
-//      "EGL_ANDROID_blob_cache "               // strongly recommended
-//      "EGL_IMG_hibernate_process "            // optional
+extern char const * const gBuiltinExtensionString;
+extern char const * const gExtensionString;
 
 extern void initEglTraceLevel();
 extern void initEglDebugLevel();
@@ -67,10 +44,20 @@ extern void setGLHooksThreadSpecific(gl_hooks_t const *value);
 
 // ----------------------------------------------------------------------------
 
+static bool findExtension(const char* exts, const char* name, size_t nameLen) {
+    if (exts) {
+        const char* match = strstr(exts, name);
+        if (match && (match[nameLen] == '\0' || match[nameLen] == ' ')) {
+            return true;
+        }
+    }
+    return false;
+}
+
 egl_display_t egl_display_t::sDisplay[NUM_DISPLAYS];
 
 egl_display_t::egl_display_t() :
-    magic('_dpy'), finishOnSwap(false), traceGpuCompletion(false), refs(0) {
+    magic('_dpy'), finishOnSwap(false), traceGpuCompletion(false), refs(0), eglIsInitialized(false) {
 }
 
 egl_display_t::~egl_display_t() {
@@ -133,173 +120,188 @@ EGLDisplay egl_display_t::getDisplay(EGLNativeDisplayType display) {
 
 EGLBoolean egl_display_t::initialize(EGLint *major, EGLint *minor) {
 
-    Mutex::Autolock _l(lock);
+    {
+        Mutex::Autolock _rf(refLock);
 
-    if (refs > 0) {
+        refs++;
+        if (refs > 1) {
+            if (major != NULL)
+                *major = VERSION_MAJOR;
+            if (minor != NULL)
+                *minor = VERSION_MINOR;
+            while(!eglIsInitialized) refCond.wait(refLock);
+            return EGL_TRUE;
+        }
+
+        while(eglIsInitialized) refCond.wait(refLock);
+    }
+
+    {
+        Mutex::Autolock _l(lock);
+
+#if EGL_TRACE
+
+        // Called both at early_init time and at this time. (Early_init is pre-zygote, so
+        // the information from that call may be stale.)
+        initEglTraceLevel();
+        initEglDebugLevel();
+
+#endif
+
+        setGLHooksThreadSpecific(&gHooksNoContext);
+
+        // initialize each EGL and
+        // build our own extension string first, based on the extension we know
+        // and the extension supported by our client implementation
+
+        egl_connection_t* const cnx = &gEGLImpl;
+        cnx->major = -1;
+        cnx->minor = -1;
+        if (cnx->dso) {
+            EGLDisplay idpy = disp.dpy;
+            if (cnx->egl.eglInitialize(idpy, &cnx->major, &cnx->minor)) {
+                //ALOGD("initialized dpy=%p, ver=%d.%d, cnx=%p",
+                //        idpy, cnx->major, cnx->minor, cnx);
+
+                // display is now initialized
+                disp.state = egl_display_t::INITIALIZED;
+
+                // get the query-strings for this display for each implementation
+                disp.queryString.vendor = cnx->egl.eglQueryString(idpy,
+                        EGL_VENDOR);
+                disp.queryString.version = cnx->egl.eglQueryString(idpy,
+                        EGL_VERSION);
+                disp.queryString.extensions = cnx->egl.eglQueryString(idpy,
+                        EGL_EXTENSIONS);
+                disp.queryString.clientApi = cnx->egl.eglQueryString(idpy,
+                        EGL_CLIENT_APIS);
+
+            } else {
+                ALOGW("eglInitialize(%p) failed (%s)", idpy,
+                        egl_tls_t::egl_strerror(cnx->egl.eglGetError()));
+            }
+        }
+
+        // the query strings are per-display
+        mVendorString.setTo(sVendorString);
+        mVersionString.setTo(sVersionString);
+        mClientApiString.setTo(sClientApiString);
+
+        mExtensionString.setTo(gBuiltinExtensionString);
+        char const* start = gExtensionString;
+        char const* end;
+        do {
+            // find the space separating this extension for the next one
+            end = strchr(start, ' ');
+            if (end) {
+                // length of the extension string
+                const size_t len = end - start;
+                if (len) {
+                    // NOTE: we could avoid the copy if we had strnstr.
+                    const String8 ext(start, len);
+                    if (findExtension(disp.queryString.extensions, ext.string(),
+                            len)) {
+                        mExtensionString.append(start, len+1);
+                    }
+                }
+                // process the next extension string, and skip the space.
+                start = end + 1;
+            }
+        } while (end);
+
+        egl_cache_t::get()->initialize(this);
+
+        char value[PROPERTY_VALUE_MAX];
+        property_get("debug.egl.finish", value, "0");
+        if (atoi(value)) {
+            finishOnSwap = true;
+        }
+
+        property_get("debug.egl.traceGpuCompletion", value, "0");
+        if (atoi(value)) {
+            traceGpuCompletion = true;
+        }
+
         if (major != NULL)
             *major = VERSION_MAJOR;
         if (minor != NULL)
             *minor = VERSION_MINOR;
-        refs++;
-        return EGL_TRUE;
+
+        mHibernation.setDisplayValid(true);
     }
 
-#if EGL_TRACE
-
-    // Called both at early_init time and at this time. (Early_init is pre-zygote, so
-    // the information from that call may be stale.)
-    initEglTraceLevel();
-    initEglDebugLevel();
-
-#endif
-
-    setGLHooksThreadSpecific(&gHooksNoContext);
-
-    // initialize each EGL and
-    // build our own extension string first, based on the extension we know
-    // and the extension supported by our client implementation
-
-    egl_connection_t* const cnx = &gEGLImpl;
-    cnx->major = -1;
-    cnx->minor = -1;
-    if (cnx->dso) {
-
-#if defined(ADRENO130)
-#warning "Adreno-130 eglInitialize() workaround"
-        /*
-         * The ADRENO 130 driver returns a different EGLDisplay each time
-         * eglGetDisplay() is called, but also makes the EGLDisplay invalid
-         * after eglTerminate() has been called, so that eglInitialize()
-         * cannot be called again. Therefore, we need to make sure to call
-         * eglGetDisplay() before calling eglInitialize();
-         */
-        if (i == IMPL_HARDWARE) {
-            disp[i].dpy = cnx->egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        }
-#endif
-
-        EGLDisplay idpy = disp.dpy;
-        if (cnx->egl.eglInitialize(idpy, &cnx->major, &cnx->minor)) {
-            //ALOGD("initialized dpy=%p, ver=%d.%d, cnx=%p",
-            //        idpy, cnx->major, cnx->minor, cnx);
-
-            // display is now initialized
-            disp.state = egl_display_t::INITIALIZED;
-
-            // get the query-strings for this display for each implementation
-            disp.queryString.vendor = cnx->egl.eglQueryString(idpy,
-                    EGL_VENDOR);
-            disp.queryString.version = cnx->egl.eglQueryString(idpy,
-                    EGL_VERSION);
-            disp.queryString.extensions = cnx->egl.eglQueryString(idpy,
-                    EGL_EXTENSIONS);
-            disp.queryString.clientApi = cnx->egl.eglQueryString(idpy,
-                    EGL_CLIENT_APIS);
-
-        } else {
-            ALOGW("eglInitialize(%p) failed (%s)", idpy,
-                    egl_tls_t::egl_strerror(cnx->egl.eglGetError()));
-        }
+    {
+        Mutex::Autolock _rf(refLock);
+        eglIsInitialized = true;
+        refCond.broadcast();
     }
-
-    // the query strings are per-display
-    mVendorString.setTo(sVendorString);
-    mVersionString.setTo(sVersionString);
-    mClientApiString.setTo(sClientApiString);
-
-    // we only add extensions that exist in the implementation
-    char const* start = sExtensionString;
-    char const* end;
-    do {
-        // find the space separating this extension for the next one
-        end = strchr(start, ' ');
-        if (end) {
-            // length of the extension string
-            const size_t len = end - start;
-            if (len) {
-                // NOTE: we could avoid the copy if we had strnstr.
-                const String8 ext(start, len);
-                // now look for this extension
-                if (disp.queryString.extensions) {
-                    // if we find it, add this extension string to our list
-                    // (and don't forget the space)
-                    const char* match = strstr(disp.queryString.extensions, ext.string());
-                    if (match && (match[len] == ' ' || match[len] == 0)) {
-                        mExtensionString.append(start, len+1);
-                    }
-                }
-            }
-            // process the next extension string, and skip the space.
-            start = end + 1;
-        }
-    } while (end);
-
-    egl_cache_t::get()->initialize(this);
-
-    char value[PROPERTY_VALUE_MAX];
-    property_get("debug.egl.finish", value, "0");
-    if (atoi(value)) {
-        finishOnSwap = true;
-    }
-
-    property_get("debug.egl.traceGpuCompletion", value, "0");
-    if (atoi(value)) {
-        traceGpuCompletion = true;
-    }
-
-    refs++;
-    if (major != NULL)
-        *major = VERSION_MAJOR;
-    if (minor != NULL)
-        *minor = VERSION_MINOR;
-
-    mHibernation.setDisplayValid(true);
 
     return EGL_TRUE;
 }
 
 EGLBoolean egl_display_t::terminate() {
 
-    Mutex::Autolock _l(lock);
+    {
+        Mutex::Autolock _rl(refLock);
+        if (refs == 0) {
+            /*
+             * From the EGL spec (3.2):
+             * "Termination of a display that has already been terminated,
+             *  (...), is allowed, but the only effect of such a call is
+             *  to return EGL_TRUE (...)
+             */
+            return EGL_TRUE;
+        }
 
-    if (refs == 0) {
-        return setError(EGL_NOT_INITIALIZED, EGL_FALSE);
-    }
-
-    // this is specific to Android, display termination is ref-counted.
-    if (refs > 1) {
+        // this is specific to Android, display termination is ref-counted.
         refs--;
-        return EGL_TRUE;
+        if (refs > 0) {
+            return EGL_TRUE;
+        }
     }
 
     EGLBoolean res = EGL_FALSE;
-    egl_connection_t* const cnx = &gEGLImpl;
-    if (cnx->dso && disp.state == egl_display_t::INITIALIZED) {
-        if (cnx->egl.eglTerminate(disp.dpy) == EGL_FALSE) {
-            ALOGW("eglTerminate(%p) failed (%s)", disp.dpy,
-                    egl_tls_t::egl_strerror(cnx->egl.eglGetError()));
+
+    {
+        Mutex::Autolock _l(lock);
+
+        egl_connection_t* const cnx = &gEGLImpl;
+        if (cnx->dso && disp.state == egl_display_t::INITIALIZED) {
+            if (cnx->egl.eglTerminate(disp.dpy) == EGL_FALSE) {
+                ALOGW("eglTerminate(%p) failed (%s)", disp.dpy,
+                        egl_tls_t::egl_strerror(cnx->egl.eglGetError()));
+            }
+            // REVISIT: it's unclear what to do if eglTerminate() fails
+            disp.state = egl_display_t::TERMINATED;
+            res = EGL_TRUE;
         }
-        // REVISIT: it's unclear what to do if eglTerminate() fails
-        disp.state = egl_display_t::TERMINATED;
-        res = EGL_TRUE;
+
+        mHibernation.setDisplayValid(false);
+
+        // Reset the extension string since it will be regenerated if we get
+        // reinitialized.
+        mExtensionString.setTo("");
+
+        // Mark all objects remaining in the list as terminated, unless
+        // there are no reference to them, it which case, we're free to
+        // delete them.
+        size_t count = objects.size();
+        ALOGW_IF(count, "eglTerminate() called w/ %d objects remaining", count);
+        for (size_t i=0 ; i<count ; i++) {
+            egl_object_t* o = objects.itemAt(i);
+            o->destroy();
+        }
+
+        // this marks all object handles are "terminated"
+        objects.clear();
     }
 
-    mHibernation.setDisplayValid(false);
-
-    // Mark all objects remaining in the list as terminated, unless
-    // there are no reference to them, it which case, we're free to
-    // delete them.
-    size_t count = objects.size();
-    ALOGW_IF(count, "eglTerminate() called w/ %d objects remaining", count);
-    for (size_t i=0 ; i<count ; i++) {
-        egl_object_t* o = objects.itemAt(i);
-        o->destroy();
+    {
+        Mutex::Autolock _rl(refLock);
+        eglIsInitialized = false;
+        refCond.broadcast();
     }
 
-    // this marks all object handles are "terminated"
-    objects.clear();
-
-    refs--;
     return res;
 }
 
@@ -336,7 +338,7 @@ void egl_display_t::loseCurrentImpl(egl_context_t * cur_c)
 }
 
 EGLBoolean egl_display_t::makeCurrent(egl_context_t* c, egl_context_t* cur_c,
-        EGLSurface draw, EGLSurface read, EGLContext ctx,
+        EGLSurface draw, EGLSurface read, EGLContext /*ctx*/,
         EGLSurface impl_draw, EGLSurface impl_read, EGLContext impl_ctx)
 {
     EGLBoolean result;
@@ -378,6 +380,13 @@ EGLBoolean egl_display_t::makeCurrent(egl_context_t* c, egl_context_t* cur_c,
     }
 
     return result;
+}
+
+bool egl_display_t::haveExtension(const char* name, size_t nameLen) const {
+    if (!nameLen) {
+        nameLen = strlen(name);
+    }
+    return findExtension(mExtensionString.string(), name, nameLen);
 }
 
 // ----------------------------------------------------------------------------

@@ -66,10 +66,21 @@ enum {
  * Sensor accuracy measure
  */
 enum {
+    ASENSOR_STATUS_NO_CONTACT       = -1,
     ASENSOR_STATUS_UNRELIABLE       = 0,
     ASENSOR_STATUS_ACCURACY_LOW     = 1,
     ASENSOR_STATUS_ACCURACY_MEDIUM  = 2,
     ASENSOR_STATUS_ACCURACY_HIGH    = 3
+};
+
+/*
+ * Sensor Reporting Modes.
+ */
+enum {
+    AREPORTING_MODE_CONTINUOUS = 0,
+    AREPORTING_MODE_ON_CHANGE = 1,
+    AREPORTING_MODE_ONE_SHOT = 2,
+    AREPORTING_MODE_SPECIAL_TRIGGER = 3
 };
 
 /*
@@ -106,6 +117,35 @@ typedef struct ASensorVector {
     uint8_t reserved[3];
 } ASensorVector;
 
+typedef struct AMetaDataEvent {
+    int32_t what;
+    int32_t sensor;
+} AMetaDataEvent;
+
+typedef struct AUncalibratedEvent {
+  union {
+    float uncalib[3];
+    struct {
+      float x_uncalib;
+      float y_uncalib;
+      float z_uncalib;
+    };
+  };
+  union {
+    float bias[3];
+    struct {
+      float x_bias;
+      float y_bias;
+      float z_bias;
+    };
+  };
+} AUncalibratedEvent;
+
+typedef struct AHeartRateEvent {
+  float bpm;
+  int8_t status;
+} AHeartRateEvent;
+
 /* NOTE: Must match hardware/sensors.h */
 typedef struct ASensorEvent {
     int32_t version; /* sizeof(struct ASensorEvent) */
@@ -114,18 +154,30 @@ typedef struct ASensorEvent {
     int32_t reserved0;
     int64_t timestamp;
     union {
-        float           data[16];
-        ASensorVector   vector;
-        ASensorVector   acceleration;
-        ASensorVector   magnetic;
-        float           temperature;
-        float           distance;
-        float           light;
-        float           pressure;
+        union {
+            float           data[16];
+            ASensorVector   vector;
+            ASensorVector   acceleration;
+            ASensorVector   magnetic;
+            float           temperature;
+            float           distance;
+            float           light;
+            float           pressure;
+            float           relative_humidity;
+            AUncalibratedEvent uncalibrated_gyro;
+            AUncalibratedEvent uncalibrated_magnetic;
+            AMetaDataEvent meta_data;
+            AHeartRateEvent heart_rate;
+        };
+        union {
+            uint64_t        data[8];
+            uint64_t        step_counter;
+        } u64;
     };
-    int32_t reserved1[4];
-} ASensorEvent;
 
+    uint32_t flags;
+    int32_t reserved1[3];
+} ASensorEvent;
 
 struct ASensorManager;
 typedef struct ASensorManager ASensorManager;
@@ -158,9 +210,16 @@ int ASensorManager_getSensorList(ASensorManager* manager, ASensorList* list);
 
 /*
  * Returns the default sensor for the given type, or NULL if no sensor
- * of that type exist.
+ * of that type exists.
  */
 ASensor const* ASensorManager_getDefaultSensor(ASensorManager* manager, int type);
+
+/*
+ * Returns the default sensor with the given type and wakeUp properties or NULL if no sensor
+ * of this type and wakeUp properties exists.
+ */
+ASensor const* ASensorManager_getDefaultSensorEx(ASensorManager* manager, int type,
+        bool wakeUp);
 
 /*
  * Creates a new sensor event queue and associate it with a looper.
@@ -248,6 +307,31 @@ float ASensor_getResolution(ASensor const* sensor);
  */
 int ASensor_getMinDelay(ASensor const* sensor);
 
+/*
+ * Returns the maximum size of batches for this sensor. Batches will often be
+ * smaller, as the hardware fifo might be used for other sensors.
+ */
+int ASensor_getFifoMaxEventCount(ASensor const* sensor);
+
+/*
+ * Returns the hardware batch fifo size reserved to this sensor.
+ */
+int ASensor_getFifoReservedEventCount(ASensor const* sensor);
+
+/*
+ * Returns this sensor's string type.
+ */
+const char* ASensor_getStringType(ASensor const* sensor);
+
+/*
+ * Returns the reporting mode for this sensor. One of AREPORTING_MODE_* constants.
+ */
+int ASensor_getReportingMode(ASensor const* sensor);
+
+/*
+ * Returns true if this is a wake up sensor, false otherwise.
+ */
+bool ASensor_isWakeUpSensor(ASensor const* sensor);
 
 #ifdef __cplusplus
 };

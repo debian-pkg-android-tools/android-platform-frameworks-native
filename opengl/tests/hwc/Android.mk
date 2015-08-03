@@ -39,6 +39,8 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libEGL \
     libGLESv2 \
+    libutils \
+    liblog \
     libui \
     libhardware \
 
@@ -55,7 +57,6 @@ LOCAL_C_INCLUDES += \
 LOCAL_CFLAGS := -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES
 
 LOCAL_MODULE:= hwcStress
-LOCAL_MODULE_PATH := $(TARGET_OUT_DATA)/nativestresstest
 
 LOCAL_MODULE_TAGS := tests
 
@@ -70,6 +71,8 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libEGL \
     libGLESv2 \
+    libutils \
+    liblog \
     libui \
     libhardware \
 
@@ -84,7 +87,6 @@ LOCAL_C_INCLUDES += \
 	$(call include-path-for, opengl-tests-includes)
 
 LOCAL_MODULE:= hwcRects
-LOCAL_MODULE_PATH := $(TARGET_OUT_DATA)/nativeutil
 
 LOCAL_MODULE_TAGS := tests
 
@@ -99,6 +101,8 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libEGL \
     libGLESv2 \
+    libutils \
+    liblog \
     libui \
     libhardware \
 
@@ -113,7 +117,6 @@ LOCAL_C_INCLUDES += \
 	$(call include-path-for, opengl-tests-includes)
 
 LOCAL_MODULE:= hwcColorEquiv
-LOCAL_MODULE_PATH := $(TARGET_OUT_DATA)/nativeutil
 
 LOCAL_MODULE_TAGS := tests
 
@@ -128,6 +131,8 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libEGL \
     libGLESv2 \
+    libutils \
+    liblog \
     libui \
     libhardware \
 
@@ -142,7 +147,6 @@ LOCAL_C_INCLUDES += \
 	$(call include-path-for, opengl-tests-includes)
 
 LOCAL_MODULE:= hwcCommit
-LOCAL_MODULE_PATH := $(TARGET_OUT_DATA)/nativebenchmark
 
 LOCAL_MODULE_TAGS := tests
 

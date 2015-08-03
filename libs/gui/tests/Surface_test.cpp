@@ -20,20 +20,28 @@
 #include <gui/ISurfaceComposer.h>
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
+#include <gui/BufferItemConsumer.h>
+#include <ui/Rect.h>
 #include <utils/String8.h>
 
 #include <private/gui/ComposerService.h>
+#include <binder/ProcessState.h>
 
 namespace android {
 
 class SurfaceTest : public ::testing::Test {
 protected:
+
+    SurfaceTest() {
+        ProcessState::self()->startThreadPool();
+    }
+
     virtual void SetUp() {
         mComposerClient = new SurfaceComposerClient;
         ASSERT_EQ(NO_ERROR, mComposerClient->initCheck());
 
         mSurfaceControl = mComposerClient->createSurface(
-                String8("Test Surface"), 0, 32, 32, PIXEL_FORMAT_RGBA_8888, 0);
+                String8("Test Surface"), 32, 32, PIXEL_FORMAT_RGBA_8888, 0);
 
         ASSERT_TRUE(mSurfaceControl != NULL);
         ASSERT_TRUE(mSurfaceControl->isValid());
@@ -81,13 +89,14 @@ TEST_F(SurfaceTest, ScreenshotsOfProtectedBuffersSucceed) {
     sp<ANativeWindow> anw(mSurface);
 
     // Verify the screenshot works with no protected buffers.
-    sp<IMemoryHeap> heap;
-    uint32_t w=0, h=0;
-    PixelFormat fmt=0;
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    sp<CpuConsumer> cpuConsumer = new CpuConsumer(consumer, 1);
     sp<ISurfaceComposer> sf(ComposerService::getComposerService());
-    ASSERT_EQ(NO_ERROR, sf->captureScreen(0, &heap, &w, &h, &fmt, 64, 64, 0,
-            0x7fffffff));
-    ASSERT_TRUE(heap != NULL);
+    sp<IBinder> display(sf->getBuiltInDisplay(ISurfaceComposer::eDisplayIdMain));
+    ASSERT_EQ(NO_ERROR, sf->captureScreen(display, producer, Rect(),
+            64, 64, 0, 0x7fffffff, false));
 
     // Set the PROTECTED usage bit and verify that the screenshot fails.  Note
     // that we need to dequeue a buffer in order for it to actually get
@@ -97,28 +106,26 @@ TEST_F(SurfaceTest, ScreenshotsOfProtectedBuffersSucceed) {
     ASSERT_EQ(NO_ERROR, native_window_set_buffer_count(anw.get(), 3));
     ANativeWindowBuffer* buf = 0;
 
-    status_t err = anw->dequeueBuffer(anw.get(), &buf);
+    status_t err = native_window_dequeue_buffer_and_wait(anw.get(), &buf);
     if (err) {
         // we could fail if GRALLOC_USAGE_PROTECTED is not supported.
         // that's okay as long as this is the reason for the failure.
         // try again without the GRALLOC_USAGE_PROTECTED bit.
         ASSERT_EQ(NO_ERROR, native_window_set_usage(anw.get(), 0));
-        ASSERT_EQ(NO_ERROR, anw->dequeueBuffer(anw.get(), &buf));
+        ASSERT_EQ(NO_ERROR, native_window_dequeue_buffer_and_wait(anw.get(),
+                &buf));
         return;
     }
-    ASSERT_EQ(NO_ERROR, anw->cancelBuffer(anw.get(), buf));
+    ASSERT_EQ(NO_ERROR, anw->cancelBuffer(anw.get(), buf, -1));
 
     for (int i = 0; i < 4; i++) {
         // Loop to make sure SurfaceFlinger has retired a protected buffer.
-        ASSERT_EQ(NO_ERROR, anw->dequeueBuffer(anw.get(), &buf));
-        ASSERT_EQ(NO_ERROR, anw->lockBuffer(anw.get(), buf));
-        ASSERT_EQ(NO_ERROR, anw->queueBuffer(anw.get(), buf));
+        ASSERT_EQ(NO_ERROR, native_window_dequeue_buffer_and_wait(anw.get(),
+                &buf));
+        ASSERT_EQ(NO_ERROR, anw->queueBuffer(anw.get(), buf, -1));
     }
-    heap = 0;
-    w = h = fmt = 0;
-    ASSERT_EQ(NO_ERROR, sf->captureScreen(0, &heap, &w, &h, &fmt,
-            64, 64, 0, 0x7fffffff));
-    ASSERT_TRUE(heap != NULL);
+    ASSERT_EQ(NO_ERROR, sf->captureScreen(display, producer, Rect(),
+            64, 64, 0, 0x7fffffff, false));
 }
 
 TEST_F(SurfaceTest, ConcreteTypeIsSurface) {
@@ -127,6 +134,25 @@ TEST_F(SurfaceTest, ConcreteTypeIsSurface) {
     int err = anw->query(anw.get(), NATIVE_WINDOW_CONCRETE_TYPE, &result);
     EXPECT_EQ(NO_ERROR, err);
     EXPECT_EQ(NATIVE_WINDOW_SURFACE, result);
+}
+
+TEST_F(SurfaceTest, QueryConsumerUsage) {
+    const int TEST_USAGE_FLAGS =
+            GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_HW_RENDER;
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    sp<BufferItemConsumer> c = new BufferItemConsumer(consumer,
+            TEST_USAGE_FLAGS);
+    sp<Surface> s = new Surface(producer);
+
+    sp<ANativeWindow> anw(s);
+
+    int flags = -1;
+    int err = anw->query(anw.get(), NATIVE_WINDOW_CONSUMER_USAGE_BITS, &flags);
+
+    ASSERT_EQ(NO_ERROR, err);
+    ASSERT_EQ(TEST_USAGE_FLAGS, flags);
 }
 
 }
