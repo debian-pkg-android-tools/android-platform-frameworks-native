@@ -31,9 +31,9 @@ Copyright: 1998-2009, PacketVideo
 License: MIT/X11
 
 Files: debian/*
-Copyright: 2015 Hans-Christoph Steiner <hans@eds.org>,
-           2015 Laszlo Boszormenyi (GCS) <gcs@debian.org>,
-           2015 Kai-Chung Yan <seamlikok@gmail.com>
+Copyright: 2015, Hans-Christoph Steiner <hans@eds.org>,
+           2015, Laszlo Boszormenyi (GCS) <gcs@debian.org>,
+           2015, Kai-Chung Yan <seamlikok@gmail.com>
 License: CC0
 
 

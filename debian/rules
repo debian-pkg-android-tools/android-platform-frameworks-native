@@ -1,7 +1,14 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/pkg-info.mk
+
+UPSTREAM_TAG = android-$(subst +,_,$(DEB_VERSION_UPSTREAM))
+
 %:
 	dh $@
 
-override_dh_shlibdeps:
-	dh_shlibdeps -l/usr/lib/android
+get-orig-source: $(UPSTREAM_TAG).tar.gz
+	mk-origtargz --repack --compression xz $<
+
+$(UPSTREAM_TAG).tar.gz:
+	wget https://android.googlesource.com/platform/frameworks/native/+archive/$(UPSTREAM_TAG).tar.gz
