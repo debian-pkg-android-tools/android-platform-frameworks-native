@@ -2,7 +2,7 @@ android-platform-frameworks-native (1:6.0.0+r26-1) UNRELEASED; urgency=low
 
   * New upstream release
   * Change version scheme to follow upstream Android release tags
-  * Remove package: android-libutils(-dev)
+  * Remove package: android-libutils(-dev) (closes: #789609)
   * Add myself to Uploaders
   * Use get-orig-source rule for fetching upstream
   * d/control: Change priority to optional
