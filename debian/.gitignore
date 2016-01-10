@@ -1,0 +1,4 @@
+files
+*.substvars
+*.log
+android-platform-frameworks-native-headers/
