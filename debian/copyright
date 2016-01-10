@@ -1,5 +1,4 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0
-Upstream-Name: Android native frameworks
 Upstream-Contact: https://source.android.com/compatibility/contact-us.html
 Source: https://android.googlesource.com/platform/frameworks/native
 
@@ -20,7 +19,7 @@ Files: opengl/include/EGL/*
 Copyright: 2007-2009, The Khronos Group Inc.
 License: MIT/X11
 
-Files: opengl/tests/angeles/
+Files: opengl/tests/angeles/*
 Copyright: 2004-2005, Jetro Lauha
            2003, David Blythe
 License: BSD-3-clause or LGPL-2.1+
