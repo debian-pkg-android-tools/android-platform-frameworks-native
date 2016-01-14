@@ -1,4 +1,4 @@
-android-platform-frameworks-native (1:6.0.0+r26-1) UNRELEASED; urgency=low
+android-platform-frameworks-native (1:6.0.0+r26-1) experimental; urgency=low
 
   * New upstream release
   * Change version scheme to follow upstream Android release tags
