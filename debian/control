@@ -15,5 +15,7 @@ Package: android-platform-frameworks-native-headers
 Section: libdevel
 Architecture: all
 Depends: ${misc:Depends}
+Breaks: android-libutils-dev (<< 1:6.0.0+r26)
+Replaces: android-libutils-dev (<< 1:6.0.0+r26)
 Description: Headers of android-platform-frameworks-native
  This package contains headers in include/android in platform/frameworks/native.
