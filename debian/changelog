@@ -1,3 +1,9 @@
+android-platform-frameworks-native (1:6.0.0+r26-3) UNRELEASED; urgency=medium
+
+  * New packages: libetc1-0 libetc1-dev
+
+ -- Kai-Chung Yan <seamlikok@gmail.com>  Mon, 08 Feb 2016 22:59:30 +0800
+
 android-platform-frameworks-native (1:6.0.0+r26-2) unstable; urgency=medium
 
   * Breaks & Replaces: android-libutils-dev (<< 1:6.0.0+r26) (Closes: #812450)

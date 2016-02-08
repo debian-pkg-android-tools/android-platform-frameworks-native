@@ -1,0 +1,4 @@
+#!/usr/bin/dh-exec
+
+libETC1.so          usr/lib/${DEB_HOST_MULTIARCH}
+opengl/include/ETC1 usr/include

@@ -1,4 +1,7 @@
-files
-*.substvars
 *.log
+*.substvars
+*.symbols
 android-platform-frameworks-native-headers/
+debhelper-build-stamp
+files
+libetc1-*/
