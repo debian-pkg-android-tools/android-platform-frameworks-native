@@ -5,7 +5,8 @@ Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.or
 Uploaders: Hans-Christoph Steiner <hans@eds.org>,
            Laszlo Boszormenyi (GCS) <gcs@debian.org>,
            Kai-Chung Yan <seamlikok@gmail.com>
-Build-Depends: debhelper (>=9)
+Build-Depends: android-platform-build-headers (>= 1:6)  [amd64 i386],
+               debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: https://android.googlesource.com/platform/frameworks/native
 Vcs-Git: https://anonscm.debian.org/git/android-tools/android-platform-frameworks-native.git
@@ -22,7 +23,7 @@ Description: Headers of android-platform-frameworks-native
 
 Package: android-libetc1
 Section: libs
-Architecture: any
+Architecture: amd64 i386
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: ETC1 compression library
  Ericsson Texture Compression (ETC) is a lossy texture compression technique
@@ -31,7 +32,7 @@ Description: ETC1 compression library
 
 Package: android-libetc1-dev
 Section: libdevel
-Architecture: any
+Architecture: amd64 i386
 Depends: android-libetc1 (= ${binary:Version}), ${misc:Depends}
 Description: ETC1 compression library -Development files
  Ericsson Texture Compression (ETC) is a lossy texture compression technique
