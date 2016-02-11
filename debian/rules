@@ -1,15 +1,21 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 
 UPSTREAM_TAG = android-$(subst +,_,$(DEB_VERSION_UPSTREAM))
+
+ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
+  ifneq ($(filter amd64 i386,$(DEB_HOST_ARCH_CPU)),)
+    BUILD_COMMANDS = make -f debian/libETC1.mk
+  endif
+endif
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	make -f debian/libETC1.mk
-	dpkg-gensymbols -pandroid-libetc1 -v0 -elibETC1.so.0 -Odebian/android-libetc1.symbols
+	$(BUILD_COMMANDS)
 
 override_dh_auto_clean:
 	dh_auto_clean
