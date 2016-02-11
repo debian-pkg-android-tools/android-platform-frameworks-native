@@ -1,0 +1,12 @@
+Although libETC1 seems like a reusable library and it is highly likely that some
+future packages may depend on it, we still consider it a Android SDK internal
+library and place it in /usr/lib/android because:
+
+  * It does not have ABI version in SONAME
+  * It does not have any version
+  * It barely has documentations
+
+If a package really needs to use it, simlpy add "-Wl,-rpath=/usr/lib/android" to
+LDFLAGS. Feel free to contact us at #debian-mobile on <irc.debian.org>!
+
+ -- Kai-Chung Yan <seamlikok@gmail.com>  Thu, 11 Feb 2016 21:36:38 +0800

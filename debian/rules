@@ -9,12 +9,12 @@ UPSTREAM_TAG = android-$(subst +,_,$(DEB_VERSION_UPSTREAM))
 
 override_dh_auto_build:
 	make -f debian/libETC1.mk
-	dpkg-gensymbols -plibetc1-0 -v0 -elibETC1.so.0 -Odebian/libetc1-0.symbols
+	dpkg-gensymbols -pandroid-libetc1 -v0 -elibETC1.so.0 -Odebian/android-libetc1.symbols
 
 override_dh_auto_clean:
 	dh_auto_clean
 	make clean -f debian/libETC1.mk
-	$(RM) debian/libetc1-0.symbols
+	$(RM) debian/*.symbols
 
 get-orig-source: $(UPSTREAM_TAG).tar.gz
 	mk-origtargz --repack --compression xz $<
