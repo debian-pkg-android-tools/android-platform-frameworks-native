@@ -1,4 +1,4 @@
-android-platform-frameworks-native (1:6.0.0+r26-3+ppa1) xenial; urgency=medium
+android-platform-frameworks-native (1:6.0.0+r26-3) UNRELEASED; urgency=medium
 
   * New packages: android-libetc1, android-libetc1-dev
 
