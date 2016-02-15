@@ -1,9 +1,13 @@
-android-platform-frameworks-native (1:6.0.0+r26-3) UNRELEASED; urgency=medium
+android-platform-frameworks-native (1:6.0.1+r16-1) unstable; urgency=medium
 
+  [ Kai-Chung Yan ]
   * New packages: android-libetc1, android-libetc1-dev
-  * d/control: Add android-plarform-build-headers to Build-Depends
+  * d/control: Add android-platform-build-headers to Build-Depends
 
- -- Kai-Chung Yan <seamlikok@gmail.com>  Thu, 11 Feb 2016 21:36:38 +0800
+  [ Hans-Christoph Steiner ]
+  * New upstream release
+
+ -- Hans-Christoph Steiner <hans@eds.org>  Mon, 15 Feb 2016 22:15:15 +0100
 
 android-platform-frameworks-native (1:6.0.0+r26-2) unstable; urgency=medium
 
