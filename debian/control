@@ -5,7 +5,7 @@ Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.or
 Uploaders: Hans-Christoph Steiner <hans@eds.org>,
            Laszlo Boszormenyi (GCS) <gcs@debian.org>,
            Kai-Chung Yan <seamlikok@gmail.com>
-Build-Depends: android-platform-build-headers (>= 1:6)  [amd64 i386],
+Build-Depends: android-platform-build-headers (>= 1:6.0.1+r55~)  [amd64 i386],
                debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: https://android.googlesource.com/platform/frameworks/native
