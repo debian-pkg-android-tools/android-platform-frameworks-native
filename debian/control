@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Android tools Maintainer <android-tools-devel@lists.alioth.debian.org>
 Uploaders: Hans-Christoph Steiner <hans@eds.org>,
            Laszlo Boszormenyi (GCS) <gcs@debian.org>,
-           Kai-Chung Yan <seamlikok@gmail.com>
+           Kai-Chung Yan <seamlikok@gmail.com>,
+           Chirayu Desai <chirayudesai1@gmail.com>
 Build-Depends: android-platform-build-headers (>= 1:6.0.1+r16-4)  [amd64 i386],
                debhelper (>=9)
 Standards-Version: 3.9.6
