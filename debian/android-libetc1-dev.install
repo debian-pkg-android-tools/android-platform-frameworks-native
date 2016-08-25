@@ -1,2 +1,4 @@
-libETC1.so          usr/lib/android
+#!/usr/bin/dh-exec
+
+libETC1.so          usr/lib/${DEB_HOST_MULTIARCH}/android
 opengl/include/ETC1 usr/include/android
