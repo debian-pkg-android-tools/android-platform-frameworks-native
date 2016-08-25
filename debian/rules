@@ -3,6 +3,9 @@
 include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 
+export DEB_CXXFLAGS_MAINT_APPEND = -fPIC
+export DEB_CPPFLAGS_MAINT_APPEND = -DNDEBUG -include android/arch/AndroidConfig.h
+export DEB_LDFLAGS_MAINT_APPEND = -fPIC
 UPSTREAM_TAG = android-$(subst +,_,$(DEB_VERSION_UPSTREAM))
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
