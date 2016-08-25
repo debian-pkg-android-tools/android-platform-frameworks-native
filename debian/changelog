@@ -1,4 +1,4 @@
-android-platform-frameworks-native (1:6.0.1+r55-1) UNRELEASED; urgency=medium
+android-platform-frameworks-native (1:6.0.1+r55-1) unstable; urgency=medium
 
   [ Chirayu Desai ]
   * New upstream release.
