@@ -35,7 +35,7 @@ Package: android-libetc1-dev
 Section: libdevel
 Architecture: amd64 i386
 Depends: android-libetc1 (= ${binary:Version}), ${misc:Depends}
-Description: ETC1 compression library -Development files
+Description: ETC1 compression library - Development files
  Ericsson Texture Compression (ETC) is a lossy texture compression technique
  developed in collaboration with Ericsson Research in early 2005. libETC1
  provides the encoding and decoding of ETC1 compression algorithm.
