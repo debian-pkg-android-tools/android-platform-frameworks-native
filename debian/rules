@@ -9,7 +9,7 @@ export DEB_LDFLAGS_MAINT_APPEND = -fPIC
 UPSTREAM_TAG = android-$(subst +,_,$(DEB_VERSION_UPSTREAM))
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
-  ifneq ($(filter amd64 i386,$(DEB_HOST_ARCH_CPU)),)
+  ifneq ($(filter amd64 i386,$(DEB_HOST_ARCH)),)
     BUILD_COMMANDS = make -f debian/libETC1.mk
   endif
 endif
