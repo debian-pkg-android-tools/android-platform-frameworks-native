@@ -22,8 +22,5 @@ override_dh_auto_clean:
 	make clean -f debian/libETC1.mk
 	$(RM) debian/*.symbols
 
-get-orig-source: $(UPSTREAM_TAG).tar.gz
-	mk-origtargz --repack --compression xz $<
-
-$(UPSTREAM_TAG).tar.gz:
-	wget https://android.googlesource.com/platform/frameworks/native/+archive/$(UPSTREAM_TAG).tar.gz
+get-orig-source:
+	uscan --download-current-version --force-download --rename
