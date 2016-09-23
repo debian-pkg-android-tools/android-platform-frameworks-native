@@ -24,7 +24,7 @@ Description: Headers of android-platform-frameworks-native
 
 Package: android-libetc1
 Section: libs
-Architecture: amd64 i386
+Architecture: amd64 i386 armel armhf arm64 mips mipsel mips64el
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: ETC1 compression library
  Ericsson Texture Compression (ETC) is a lossy texture compression technique
@@ -33,7 +33,7 @@ Description: ETC1 compression library
 
 Package: android-libetc1-dev
 Section: libdevel
-Architecture: amd64 i386
+Architecture: amd64 i386 armel armhf arm64 mips mipsel mips64el
 Depends: android-libetc1 (= ${binary:Version}), ${misc:Depends}
 Description: ETC1 compression library - Development files
  Ericsson Texture Compression (ETC) is a lossy texture compression technique
