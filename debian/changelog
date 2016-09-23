@@ -1,4 +1,4 @@
-android-platform-frameworks-native (1:7.0.0+r1-1) UNRELEASED; urgency=medium
+android-platform-frameworks-native (1:7.0.0+r1-1) experimental; urgency=medium
 
   * New upstream release
   * Update Standards-Version to 3.9.8 (no changes)
