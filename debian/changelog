@@ -1,3 +1,9 @@
+android-platform-frameworks-native (1:7.0.0+r1-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Kai-Chung Yan <seamlikok@gmail.com>  Fri, 23 Sep 2016 21:33:12 +0800
+
 android-platform-frameworks-native (1:6.0.1+r55-1) unstable; urgency=medium
 
   [ Chirayu Desai ]
