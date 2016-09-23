@@ -6,7 +6,7 @@ Uploaders: Hans-Christoph Steiner <hans@eds.org>,
            Laszlo Boszormenyi (GCS) <gcs@debian.org>,
            Kai-Chung Yan <seamlikok@gmail.com>,
            Chirayu Desai <chirayudesai1@gmail.com>
-Build-Depends: debhelper (>=9),
+Build-Depends: debhelper (>=10),
                dh-exec
 Standards-Version: 3.9.8
 Homepage: https://android.googlesource.com/platform/frameworks/native
