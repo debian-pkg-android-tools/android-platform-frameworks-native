@@ -1,3 +1,10 @@
+android-platform-frameworks-native (1:7.0.0+r1-2) unstable; urgency=medium
+
+  * Upload to unstable
+  * d/control: Unify the maintainer name to "Android Tools Maintainers"
+
+ -- Kai-Chung Yan <seamlikok@gmail.com>  Tue, 06 Dec 2016 17:16:45 +0800
+
 android-platform-frameworks-native (1:7.0.0+r1-1) experimental; urgency=medium
 
   * New upstream release
