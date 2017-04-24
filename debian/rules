@@ -8,7 +8,7 @@ export DEB_CPPFLAGS_MAINT_APPEND = -DNDEBUG
 export DEB_LDFLAGS_MAINT_APPEND = -fPIC
 
 ifneq ($(filter amd64 i386 armel armhf arm64 mips mipsel mips64el,$(DEB_HOST_ARCH)),)
-  BUILD_COMMANDS = make -f debian/libETC1.mk
+  BUILD_COMMANDS = dh_auto_build --buildsystem=makefile -- -f debian/libETC1.mk
 endif
 
 %:
