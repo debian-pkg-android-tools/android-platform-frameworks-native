@@ -548,7 +548,7 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
         // grow objects
         if (mObjectsCapacity < mObjectsSize + numObjects) {
             size_t newSize = ((mObjectsSize + numObjects)*3)/2;
-            if (newSize < mObjectsSize) return NO_MEMORY;   // overflow
+            if (newSize*sizeof(binder_size_t) < mObjectsSize) return NO_MEMORY;   // overflow
             binder_size_t *objects =
                 (binder_size_t*)realloc(mObjects, newSize*sizeof(binder_size_t));
             if (objects == (binder_size_t*)0) {
@@ -1342,7 +1342,7 @@ restart_write:
     }
     if (!enoughObjects) {
         size_t newSize = ((mObjectsSize+2)*3)/2;
-        if (newSize < mObjectsSize) return NO_MEMORY;   // overflow
+        if (newSize*sizeof(binder_size_t) < mObjectsSize) return NO_MEMORY;   // overflow
         binder_size_t* objects = (binder_size_t*)realloc(mObjects, newSize*sizeof(binder_size_t));
         if (objects == NULL) return NO_MEMORY;
         mObjects = objects;
@@ -1795,15 +1795,16 @@ status_t Parcel::readUtf8FromUtf16(std::string* str) const {
        return NO_ERROR;
     }
 
-    ssize_t utf8Size = utf16_to_utf8_length(src, utf16Size);
-    if (utf8Size < 0) {
+    // Allow for closing '\0'
+    ssize_t utf8Size = utf16_to_utf8_length(src, utf16Size) + 1;
+    if (utf8Size < 1) {
         return BAD_VALUE;
     }
     // Note that while it is probably safe to assume string::resize keeps a
-    // spare byte around for the trailing null, we're going to be explicit.
-    str->resize(utf8Size + 1);
-    utf16_to_utf8(src, utf16Size, &((*str)[0]));
+    // spare byte around for the trailing null, we still pass the size including the trailing null
     str->resize(utf8Size);
+    utf16_to_utf8(src, utf16Size, &((*str)[0]), utf8Size);
+    str->resize(utf8Size - 1);
     return NO_ERROR;
 }
 
