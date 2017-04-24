@@ -714,7 +714,14 @@ status_t BufferQueueConsumer::setTransformHint(uint32_t hint) {
 }
 
 sp<NativeHandle> BufferQueueConsumer::getSidebandStream() const {
+    Mutex::Autolock lock(mCore->mMutex);
     return mCore->mSidebandStream;
+}
+
+status_t BufferQueueConsumer::discardFreeBuffers() {
+    Mutex::Autolock lock(mCore->mMutex);
+    mCore->discardFreeBuffersLocked();
+    return NO_ERROR;
 }
 
 void BufferQueueConsumer::dump(String8& result, const char* prefix) const {
